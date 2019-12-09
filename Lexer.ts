@@ -208,22 +208,25 @@ export class Lexer {
                         case StringCommentState.rB:
                         case StringCommentState.rBr:
                         case StringCommentState.rPr:
-                            let prevToken: Token = {value: tokenChars.join(''), type: currentLabelState};
-                            Lexer.updateResult(nestedTokenStack, result, prevToken);
-                            let newToken: Token = {value: currentChar, type: nextLabelState};
-                            if (nestedTokenStack.length > 0) {
-                                // remove from nesting level
-                                if (Lexer.closeMatchesOpen(nextLabelState, nestedTokenStack)) {
-                                    nestedTokenStack.pop();
+                            if (currentLabelState !== StringCommentState.rC) {
+                                let prevToken: Token = {value: tokenChars.join(''), type: currentLabelState};
+                                Lexer.updateResult(nestedTokenStack, result, prevToken);
+                                let newToken: Token = {value: currentChar, type: nextLabelState};
+                                if (nestedTokenStack.length > 0) {
+                                    // remove from nesting level
+                                    if (Lexer.closeMatchesOpen(nextLabelState, nestedTokenStack)) {
+                                        nestedTokenStack.pop();
+                                    } else {
+                                        newToken.error = true;
+                                    }
                                 } else {
                                     newToken.error = true;
                                 }
-                            } else {
-                                newToken.error = true;
+                                Lexer.updateResult(nestedTokenStack, result, newToken);
+                                tokenChars = [];
                             }
-                            Lexer.updateResult(nestedTokenStack, result, newToken);
-                            tokenChars = [];
                             break;
+                            
                         case StringCommentState.rSq:
                         case StringCommentState.rDq:
                         case StringCommentState.rUri:

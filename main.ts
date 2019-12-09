@@ -12,7 +12,7 @@ let xpath9 = 'let $a := Q{http:qutoric.com}slender';
 
 let lexer: Lexer = new Lexer();
 
-let testXpath = xpath9;
+let testXpath = xpath1;
 
 let tokens: Token[] = lexer.analyse(testXpath);
 console.log('*************');
