@@ -151,7 +151,7 @@ export class Lexer {
 
     public analyse(xpath: string): Token[] {
         let currentState: [StringCommentState, number] = [StringCommentState.init, 0];
-    
+        let lastRealToken: Token|null = null;
         let currentChar: string = null;
         let tokenChars: string[] = [];
         let result: Token[] = [];
@@ -303,9 +303,23 @@ export class Lexer {
         return result;
     }
 
-    private static prevToken(result: Token[], stack: Token[]) {
+    // don't return comment or whitespace tokens
+    private static prevRealToken(result: Token[], stack: Token[], lastRealToken:Token): Token | null {
+
         let tokenArray: Token[] = (stack.length > 0)? stack : result;
-        
+        let resultToken: Token;
+        if (tokenArray.length === 0) {
+
+        }
+        let newToken = tokenArray[tokenArray.length - 1];
+        let state = newToken.type;
+
+        if (!(state === StringCommentState.lC || state === StringCommentState.lWs)) {
+            resultToken = lastRealToken;
+        } else {
+            resultToken = newToken;
+        }
+        return resultToken;
     }
 
     private static updateResult(stack: Token[], result: Token[], newValue: Token) {
