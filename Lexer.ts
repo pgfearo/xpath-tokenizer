@@ -24,6 +24,7 @@ export enum StringCommentState {
 export class Lexer {
 
     public debug: boolean = true;
+    public debugState: boolean = false;
     private latestRealToken: Token;
 
     public static stringCommentStateToString (stringCommentState: StringCommentState) : string {
@@ -160,6 +161,7 @@ export class Lexer {
         let nestedTokenStack: Token[] = [];
         if (this.debug) {
             console.log("xpath: " + xpath);
+            Lexer.debugHeading();
         }
     
         for (let i = 0; i < xpath.length + 1; i++) {
@@ -205,7 +207,8 @@ export class Lexer {
                             let currentToken: ContainerToken = new ContainerToken(currentChar, nextLabelState);
                             this.updateResult(nestedTokenStack, result, currentToken);
                             // add to nesting level
-                            nestedTokenStack.push(currentToken);                    
+                            nestedTokenStack.push(currentToken);
+                            this.latestRealToken = null;                   
                             break;
                         case StringCommentState.rB:
                         case StringCommentState.rBr:
@@ -262,7 +265,7 @@ export class Lexer {
                             }
                             break;
                     }
-                    if (this.debug) {
+                    if (this.debugState) {
                         console.log('============STATE CHANGE ===========================');
                         let prevType: string;
                         let prevToken: string = '';
@@ -277,7 +280,7 @@ export class Lexer {
                         console.log("to:   " + Lexer.stringCommentStateToString(nextLabelState)) + "[" + token + "]";
                     }
                     if (token) {
-                        if (this.debug) {
+                        if (this.debugState) {
                             console.log('[' + token + ']' + ' type: ' + Lexer.stringCommentStateToString(currentLabelState));
                         }
                         this.updateResult(nestedTokenStack, result, {value: token, type: currentLabelState});
@@ -332,8 +335,13 @@ export class Lexer {
         }
         return resultToken;
     }
-
+    /*
+    *   1. If stack has any tokens on it, add the new token as a child to the top item on the stack
+    *   2. If stack is empty add the new token to the array of result tokens
+    *   3. If the new token is 'real' then set the latestRealToken to the new token
+    */
     private updateResult(stack: Token[], result: Token[], newValue: Token) {
+        let cachedRealToken = this.latestRealToken;
         if (newValue.value !== '') {
             let addStackTokens = stack.length > 0;
             let targetArray: Token[] = (addStackTokens)? stack[stack.length - 1].children: result;
@@ -344,6 +352,63 @@ export class Lexer {
                 this.latestRealToken = newValue;
             } 
         }
+        if (this.debug && newValue.value !== '') {
+            let showWhitespace = false;
+            let nextRealToken: string = this.getTokenDebugString(this.latestRealToken);
+            let cachedRealTokenString: string = this.getTokenDebugString(cachedRealToken);
+            let newT: string =  this.getTokenDebugString(newValue);
+
+            let cachedTpadding: string = Lexer.padColumns(cachedRealTokenString.length);
+            let newTpadding: string = Lexer.padColumns(newT.length);
+            if (newValue.type === StringCommentState.lWs && !(showWhitespace)) {
+                // show nothing
+            } else {
+                console.log(cachedRealTokenString + cachedTpadding +  newT + newTpadding + nextRealToken);
+            }
+
+            
+        }
+    }
+
+    private getTokenDebugString(lrt: Token) {
+        let prevType: string;
+        let prevToken: string = '';
+        if (lrt === null) {
+            prevType = 'NULL';
+        }
+        else {
+            prevType = Lexer.stringCommentStateToString(lrt.type);
+            prevToken = lrt.value;
+        }
+        let oldT: string = prevType + Lexer.padParts(prevType.length) +  prevToken + '_';
+        return oldT;
+    }
+
+    private static padColumns(padLength: number): string {
+        let padding = '';
+        for (let i = 0;  i < 50 - padLength; i++) {
+            padding += ' ';
+        }
+        return padding;
+    }
+
+    private static padParts(padLength: number): string {
+        let padding = '';
+        for (let i = 0;  i < 16 - padLength; i++) {
+            padding += ' ';
+        }
+        return padding;
+    }
+
+    private static debugHeading() {
+        let cachedT: string = 'Cached Real Token';
+        let newT: string =  'New Token';
+        let oldT: string = 'New Real Token';
+        let paddingCached: string = Lexer.padColumns(cachedT.length);
+        let padding: string = Lexer.padColumns(newT.length);
+        console.log('===============================================================================================================');
+        console.log(cachedT + paddingCached + newT + padding + oldT);
+        console.log('===============================================================================================================');
     }
 
     private static testChar(char: string, nextChar: string, nesting: number) {
