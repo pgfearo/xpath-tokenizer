@@ -501,6 +501,7 @@ export class Lexer {
                 rv = StringCommentState.lWs;
                 break;
             case '+':
+            case '-':
                 rv = StringCommentState.sep;
                 break;
             default:
