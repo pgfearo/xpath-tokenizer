@@ -17,7 +17,12 @@ export enum StringCommentState {
     escDq,   // 15 escaped double quote
     sep,    // 16 separator
     lUri,    // 17 left braced URI literal
-    rUri   // 18 right braced URI literal
+    rUri,   // 18 right braced URI literal
+    lNl,    // 20 left numeric literal
+    rNl ,    // 21 right numeric literal
+    dSep,    // 22 double char separator
+    lVar,    // 23 variable start: $var
+    exp,     // eponent in numeric literal - allow + or - or digit after it
 
 }
 
@@ -82,25 +87,54 @@ export class Lexer {
             case StringCommentState.sep:
                 result = "sep";
                 break;
+            case StringCommentState.dSep:
+                result = "dSep";
+                break;
             case StringCommentState.lUri:
                 result = "lUri";
                 break;
             case StringCommentState.rUri:
                 result = "rUri";
+                break;
+            case StringCommentState.lNl:
+                result = "NumericLiteral";
+                break;
+            case StringCommentState.rNl:
+                result = "rNl";
+                break;
          }
         return result;
     }
 
-    private static calcNewState (nesting: number, char: string, nextChar: string, existing: StringCommentState): [StringCommentState, number] {
+    private static calcNewState (isFirstChar: boolean, nesting: number, char: string, nextChar: string, existing: StringCommentState): [StringCommentState, number] {
         let rv: StringCommentState;
+        let firstCharOfToken = true;
 
         switch (existing) {
+            case StringCommentState.lNl:
+                let charCode = char.charCodeAt(0);
+                let nextCharCode = (nextChar)? nextChar.charCodeAt(0): -1;
+                if (Lexer.isDigit(charCode) || char === '.') {
+                    rv = existing;
+                } else if (char === 'e' || char === 'E') {
+                    if (nextChar === '-' || nextChar === '+' || Lexer.isDigit(nextCharCode)) {
+                        rv = StringCommentState.exp;
+                    } else {
+                        rv = existing;
+                    }
+                } else {
+                    ({ rv, nesting } = Lexer.testChar(firstCharOfToken, char, nextChar, nesting));
+                }
+                break;
+            case StringCommentState.exp:
+                rv = StringCommentState.lNl;
+                break;
             case StringCommentState.lWs:
                 if (char === ' ' || char === '\t' || char === '\n' || char === '\f') {
                     rv = existing;
                 } else {
                     // we must switch to the new state, depending on the char/nextChar
-                    ({ rv, nesting } = Lexer.testChar(char, nextChar, nesting));
+                    ({ rv, nesting } = Lexer.testChar(firstCharOfToken, char, nextChar, nesting));
                 }
                 break;
             case StringCommentState.lUri:
@@ -146,7 +180,7 @@ export class Lexer {
                 }
                 break; 
             default:
-                ({ rv, nesting } = Lexer.testChar(char, nextChar, nesting));
+                ({ rv, nesting } = Lexer.testChar(isFirstChar, char, nextChar, nesting));
         }
         return [rv, nesting];
     }
@@ -169,9 +203,11 @@ export class Lexer {
             let [currentLabelState, nestingState] = currentState;
             let nextChar: string = xpath.charAt(i);
             let nextState: [StringCommentState, number];
+            let isFirstTokenChar = tokenChars.length === 0;
     
             if (currentChar) {
                 nextState = Lexer.calcNewState(
+                    isFirstTokenChar,
                     nestingState,
                     currentChar,
                     nextChar, 
@@ -179,12 +215,22 @@ export class Lexer {
                 );
                 let [nextLabelState] = nextState;
                 let token: string;
-                if (nextLabelState === currentLabelState) {
+                if (nextLabelState === currentLabelState || 
+                   (currentLabelState === StringCommentState.exp && nextLabelState == StringCommentState.lNl)) {
                     // do nothing if state has not changed
+                    // or we're within a number with an exponent
                     tokenChars.push(currentChar);
                 } else {
                     // state has changed, so save token and start new token
                     switch (nextLabelState){
+                        case StringCommentState.lNl:
+                            this.updateResult(nestedTokenStack, result, {value: tokenChars.join(''), type: currentLabelState});
+                            tokenChars = [];
+                            tokenChars.push(currentChar);
+                            break;
+                        case StringCommentState.exp:
+                            tokenChars.push(currentChar);
+                            break;
                         case StringCommentState.sep:
                             this.updateResult(nestedTokenStack, result, {value: tokenChars.join(''), type: currentLabelState});
                             this.updateResult(nestedTokenStack, result, {value: currentChar, type: nextLabelState});
@@ -363,7 +409,7 @@ export class Lexer {
             if (newValue.type === StringCommentState.lWs && !(showWhitespace)) {
                 // show nothing
             } else {
-                console.log(cachedRealTokenString + cachedTpadding +  newT + newTpadding + nextRealToken);
+                console.log(cachedRealTokenString + cachedTpadding +  newT);
             }
 
             
@@ -407,11 +453,11 @@ export class Lexer {
         let paddingCached: string = Lexer.padColumns(cachedT.length);
         let padding: string = Lexer.padColumns(newT.length);
         console.log('===============================================================================================================');
-        console.log(cachedT + paddingCached + newT + padding + oldT);
+        console.log(cachedT + paddingCached + newT);
         console.log('===============================================================================================================');
     }
 
-    private static testChar(char: string, nextChar: string, nesting: number) {
+    private static testChar(isFirstChar: boolean, char: string, nextChar: string, nesting: number) {
         let rv: StringCommentState;
 
         switch (char) {
@@ -458,11 +504,38 @@ export class Lexer {
                 rv = StringCommentState.sep;
                 break;
             default:
-                rv = StringCommentState.init;
+                if (isFirstChar) {
+                    let charCode = char.charCodeAt(0);
+                    let nextCharCode = (nextChar)? nextChar.charCodeAt(0): -1;
+                    // check 'dot' char:
+                    if (charCode === 46) {
+                        if (nextCharCode === 46) {
+                            // '..' parent axis
+                            rv = StringCommentState.dSep;
+                        } else {
+                            rv = this.isDigit(nextCharCode)? StringCommentState.lNl : StringCommentState.sep;
+                        }
+                    } else if (this.isDigit(charCode)) {
+                        rv = StringCommentState.lNl;
+                    } else if (char === '$') {
+                        rv - StringCommentState.init;
+                    } else {
+                        rv = StringCommentState.init;
+                    }
+                    console.log('charCode:' + char.charCodeAt(0));
+                } else {
+                    rv = StringCommentState.init;
+                }
         }
         return { rv, nesting };
     }
+
+    private static isDigit(charCode: number) {
+        return charCode > 47 && charCode < 58;
+    }
 }
+
+
 
 export interface Token {
     value: string,
