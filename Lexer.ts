@@ -39,6 +39,20 @@ export class Lexer {
 
     private static doubleSeps = ['!=', '*:', '..', '//', ':*', '::', ':=', '<<', '<=', '=>', '>=', '>>'];
 
+    private static axes = [ "ancestor", "ancestor-or-self", "child", "descendant", "descendant-or-self", 
+                            "following", "following-sibling", "namespace", "parent", "preceding", "preceding-sibling", "self"];
+
+    private static nodeTests = [ "attribute", 
+                                "comment", "document-node", "attribute", "element", "empty-sequence", "item", "namespace-node", "node", 
+                                "processing-instruction", 
+                                "schema-attribute", "schema-element", "text"];                        
+
+    private static keywords = [ "and", "array", "as", "cast", "castable", "div", 
+                                "else", "eq", "every", "except","for", 
+                                "function", "ge", "gt", "idiv", "if", "in", "instance", "intersect", "is", "item", "le",
+                                "let", "lt", "map", "mod", "ne", "of", "or", "return", "satisfies",
+                                "some", "then", "to", "treat", "union"];
+
     public static stringCommentStateToString (stringCommentState: StringCommentState) : string {
         let result: string = undefined;
 
