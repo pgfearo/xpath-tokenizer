@@ -18,10 +18,17 @@ else if ($exclude/@end)
    then
    $exclude/@end cast as xs:integer + 1
 else ()`;
+let xpath13 = `let $increment := function($x as xs:integer) as xs:integer* {
+	if ($x lt 10) then
+	$x + 1, $fnb[22](24), $fna(28)
+	else
+	$x + 2, Q{http://example.com}div
+} return books/book/@title + $test`;
+let xpath14 = 'integer*integer';
 
 let lexer: Lexer = new Lexer();
 
-let testXpath = xpath12;
+let testXpath = xpath13;
 
 let tokens: Token[] = lexer.analyse(testXpath);
 console.log('*************');

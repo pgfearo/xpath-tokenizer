@@ -582,7 +582,7 @@ export class Lexer {
                 if ((nextChar) && this.doubleSeps.indexOf(doubleChar) > -1) {
                     rv = StringCommentState.dSep;
                     break;
-                } else if (this.separators.indexOf(doubleChar) > -1) {
+                } else if (this.separators.indexOf(char) > -1) {
                     rv = StringCommentState.sep;
                 } else if (isFirstChar) {
                     let charCode = char.charCodeAt(0);
