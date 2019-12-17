@@ -9,11 +9,12 @@ let xpath6 = '$test[@predicate + doc(root + other = \'abc\')/remainder]/element'
 let xpath7 = "test['abc']";
 let xpath8 = '$abc+$def';
 let xpath9 = 'let $a := Q{http:qutoric.com}slender';
-let xpath10 = '$num + 72 + my-name + 7e-2 + 7-2 + 982.5';
+let xpath10 = '+72.8 + $my:first-name + 7e-2 + 7-2 + 982.5';
+let xpath11 = '5>=8';
 
 let lexer: Lexer = new Lexer();
 
-let testXpath = xpath10;
+let testXpath = xpath4;
 
 let tokens: Token[] = lexer.analyse(testXpath);
 console.log('*************');

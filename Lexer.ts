@@ -24,6 +24,8 @@ export enum StringCommentState {
     lVar,    // 23 variable start: $var
     exp,     // 24 exponent in numeric literal - allow + or - or digit after it
     lName,   // 25 node-name, function-name or operator like 'is' etc
+    lAttr,   // 26 attribute-name
+    dSep2,
 
 }
 
@@ -33,9 +35,9 @@ export class Lexer {
     public debugState: boolean = false;
     private latestRealToken: Token;
 
-    private static separators = ['!','*'];
+    private static separators = ['!','*', '+', ',', '-', '.', '/', ':', '<', '=', '>', '?'];
 
-    private static doubleSeps = [];
+    private static doubleSeps = ['!=', '*:', '..', '//', ':*', '::', ':=', '<<', '<=', '=>', '>=', '>>'];
 
     public static stringCommentStateToString (stringCommentState: StringCommentState) : string {
         let result: string = undefined;
@@ -95,6 +97,9 @@ export class Lexer {
             case StringCommentState.dSep:
                 result = "dSep";
                 break;
+            case StringCommentState.dSep2:
+                result = "dSep2";
+                break;
             case StringCommentState.lUri:
                 result = "lUri";
                 break;
@@ -107,9 +112,6 @@ export class Lexer {
             case StringCommentState.rNl:
                 result = "rNl";
                 break;
-            case StringCommentState.dSep:
-                result = "dSep";
-                break;
             case StringCommentState.lVar:
                 result = "Variable";
                 break;
@@ -118,6 +120,9 @@ export class Lexer {
                 break;
             case StringCommentState.lName:
                 result = "Name";
+                break;
+            case StringCommentState.lAttr:
+                result = "Attribute";
                 break;
          }
         return result;
@@ -156,12 +161,16 @@ export class Lexer {
                 break;
             case StringCommentState.lName:
             case StringCommentState.lVar:
-                if (char === '-') {
+            case StringCommentState.lAttr:
+                if (char === '-' || char === '.' || char === ':') {
                     rv = existing;
                 } else {
                     // we must switch to the new state, depending on the char/nextChar
                     ({ rv, nesting } = Lexer.testChar(existing, isFirstChar, char, nextChar, nesting));
                 }
+                break;
+            case StringCommentState.dSep:
+                rv = StringCommentState.dSep2;
                 break;
             case StringCommentState.lUri:
                 rv = (char === '}')? StringCommentState.rUri : existing;
@@ -258,6 +267,14 @@ export class Lexer {
                             break;
                         case StringCommentState.exp:
                             tokenChars.push(currentChar);
+                            break;
+                        case StringCommentState.dSep:
+                            this.updateResult(nestedTokenStack, result, {value: tokenChars.join(''), type: currentLabelState});
+                            let bothChars = currentChar + nextChar;
+                            this.updateResult(nestedTokenStack, result, {value: bothChars , type: nextLabelState});
+                            tokenChars = [];
+                            break;
+                        case StringCommentState.dSep2:
                             break;
                         case StringCommentState.sep:
                             this.updateResult(nestedTokenStack, result, {value: tokenChars.join(''), type: currentLabelState});
@@ -534,7 +551,13 @@ export class Lexer {
                 rv = StringCommentState.sep;
                 break;
             default:
-                if (isFirstChar) {
+                let doubleChar = char + nextChar;
+                if ((nextChar) && this.doubleSeps.indexOf(doubleChar) > -1) {
+                    rv = StringCommentState.dSep;
+                    break;
+                } else if (this.separators.indexOf(doubleChar) > -1) {
+                    rv = StringCommentState.sep;
+                } else if (isFirstChar) {
                     let charCode = char.charCodeAt(0);
                     let nextCharCode = (nextChar)? nextChar.charCodeAt(0): -1;
                     // check 'dot' char:
@@ -549,6 +572,8 @@ export class Lexer {
                         rv = StringCommentState.lNl;
                     } else if (char === '$') {
                         rv = StringCommentState.lVar;
+                    } else if (char === '@') {
+                        rv = StringCommentState.lAttr;
                     } else {
                         rv = StringCommentState.lName;
                     }
