@@ -22,7 +22,8 @@ export enum StringCommentState {
     rNl ,    // 21 right numeric literal
     dSep,    // 22 double char separator
     lVar,    // 23 variable start: $var
-    exp,     // eponent in numeric literal - allow + or - or digit after it
+    exp,     // 24 exponent in numeric literal - allow + or - or digit after it
+    lName,   // 25 node-name, function-name or operator like 'is' etc
 
 }
 
@@ -31,6 +32,10 @@ export class Lexer {
     public debug: boolean = true;
     public debugState: boolean = false;
     private latestRealToken: Token;
+
+    private static separators = ['!','*'];
+
+    private static doubleSeps = [];
 
     public static stringCommentStateToString (stringCommentState: StringCommentState) : string {
         let result: string = undefined;
@@ -102,6 +107,18 @@ export class Lexer {
             case StringCommentState.rNl:
                 result = "rNl";
                 break;
+            case StringCommentState.dSep:
+                result = "dSep";
+                break;
+            case StringCommentState.lVar:
+                result = "Variable";
+                break;
+            case StringCommentState.exp:
+                result = "Exponent";
+                break;
+            case StringCommentState.lName:
+                result = "Name";
+                break;
          }
         return result;
     }
@@ -123,7 +140,7 @@ export class Lexer {
                         rv = existing;
                     }
                 } else {
-                    ({ rv, nesting } = Lexer.testChar(firstCharOfToken, char, nextChar, nesting));
+                    ({ rv, nesting } = Lexer.testChar(existing, firstCharOfToken, char, nextChar, nesting));
                 }
                 break;
             case StringCommentState.exp:
@@ -134,7 +151,16 @@ export class Lexer {
                     rv = existing;
                 } else {
                     // we must switch to the new state, depending on the char/nextChar
-                    ({ rv, nesting } = Lexer.testChar(firstCharOfToken, char, nextChar, nesting));
+                    ({ rv, nesting } = Lexer.testChar(existing, firstCharOfToken, char, nextChar, nesting));
+                }
+                break;
+            case StringCommentState.lName:
+            case StringCommentState.lVar:
+                if (char === '-') {
+                    rv = existing;
+                } else {
+                    // we must switch to the new state, depending on the char/nextChar
+                    ({ rv, nesting } = Lexer.testChar(existing, isFirstChar, char, nextChar, nesting));
                 }
                 break;
             case StringCommentState.lUri:
@@ -180,7 +206,7 @@ export class Lexer {
                 }
                 break; 
             default:
-                ({ rv, nesting } = Lexer.testChar(isFirstChar, char, nextChar, nesting));
+                ({ rv, nesting } = Lexer.testChar(existing, isFirstChar, char, nextChar, nesting));
         }
         return [rv, nesting];
     }
@@ -224,6 +250,8 @@ export class Lexer {
                     // state has changed, so save token and start new token
                     switch (nextLabelState){
                         case StringCommentState.lNl:
+                        case StringCommentState.lVar:
+                        case StringCommentState.lName:
                             this.updateResult(nestedTokenStack, result, {value: tokenChars.join(''), type: currentLabelState});
                             tokenChars = [];
                             tokenChars.push(currentChar);
@@ -426,7 +454,8 @@ export class Lexer {
             prevType = Lexer.stringCommentStateToString(lrt.type);
             prevToken = lrt.value;
         }
-        let oldT: string = prevType + Lexer.padParts(prevType.length) +  prevToken + '_';
+        let prevTypeLength = (prevType)? prevType.length : 0;
+        let oldT: string = prevType + Lexer.padParts(prevTypeLength) +  prevToken + '_';
         return oldT;
     }
 
@@ -457,7 +486,7 @@ export class Lexer {
         console.log('===============================================================================================================');
     }
 
-    private static testChar(isFirstChar: boolean, char: string, nextChar: string, nesting: number) {
+    private static testChar(existingState: StringCommentState, isFirstChar: boolean, char: string, nextChar: string, nesting: number) {
         let rv: StringCommentState;
 
         switch (char) {
@@ -519,13 +548,12 @@ export class Lexer {
                     } else if (this.isDigit(charCode)) {
                         rv = StringCommentState.lNl;
                     } else if (char === '$') {
-                        rv - StringCommentState.init;
+                        rv = StringCommentState.lVar;
                     } else {
-                        rv = StringCommentState.init;
+                        rv = StringCommentState.lName;
                     }
-                    console.log('charCode:' + char.charCodeAt(0));
                 } else {
-                    rv = StringCommentState.init;
+                    rv = existingState;
                 }
         }
         return { rv, nesting };
