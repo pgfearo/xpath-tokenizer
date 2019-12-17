@@ -47,11 +47,14 @@ export class Lexer {
                                 "processing-instruction", 
                                 "schema-attribute", "schema-element", "text"];                        
 
-    private static keywords = [ "and", "array", "as", "cast", "castable", "div", 
+    private static keywords = [ "and", "array", "div", 
                                 "else", "eq", "every", "except","for", 
-                                "function", "ge", "gt", "idiv", "if", "in", "instance", "intersect", "is", "item", "le",
-                                "let", "lt", "map", "mod", "ne", "of", "or", "return", "satisfies",
+                                "function", "ge", "gt", "idiv", "if", "in", "intersect", "is", "le",
+                                "let", "lt", "map", "mod", "ne", "or", "return", "satisfies",
                                 "some", "then", "to", "treat", "union"];
+    private static firstParts = [ "cast", "castable", "instance"];
+
+    private static secondParts = ["as", "of"];
 
     public static stringCommentStateToString (stringCommentState: StringCommentState) : string {
         let result: string = undefined;
@@ -528,16 +531,26 @@ export class Lexer {
                 if (nextChar === ':') {
                     rv = StringCommentState.lC;
                     nesting++;
+                } else if (nextChar == ')') {
+                    rv = StringCommentState.dSep;
                 }
                 else {
                     rv = StringCommentState.lB;
                 }
                 break;
             case '{':
-                rv = StringCommentState.lBr;
+                if (nextChar === '}') {
+                    rv = StringCommentState.dSep;
+                } else {
+                    rv = StringCommentState.lBr;
+                }
                 break;
             case '[':
-                rv = StringCommentState.lPr;
+                if (nextChar === ']') {
+                    rv = StringCommentState.dSep;
+                } else {
+                    rv = StringCommentState.lPr;
+                }
                 break;
             case ')':
                 rv = StringCommentState.rB;

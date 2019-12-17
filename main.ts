@@ -11,10 +11,17 @@ let xpath8 = '$abc+$def';
 let xpath9 = 'let $a := Q{http:qutoric.com}slender';
 let xpath10 = '+72.8 + $my:first-name + 7e-2 + 7-2 + 982.5';
 let xpath11 = '5>=8';
+let xpath12 = `let $exclude := test/elements/"trick.com":element/let!$over return
+if (empty($exclude) and 'tre'||$t eq 'treat' and "trick.com":another)
+   then ()
+else if ($exclude/@end)
+   then
+   $exclude/@end cast as xs:integer + 1
+else ()`;
 
 let lexer: Lexer = new Lexer();
 
-let testXpath = xpath4;
+let testXpath = xpath12;
 
 let tokens: Token[] = lexer.analyse(testXpath);
 console.log('*************');
