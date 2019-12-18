@@ -461,23 +461,6 @@ export class Lexer {
         return result;
     }
 
-    // don't return comment or whitespace tokens
-    private static prevRealToken(result: Token[], stack: Token[], lastRealToken:Token): Token | null {
-
-        let addStackTokens = stack.length > 0;
-        let tokenArray: Token[] = (addStackTokens)? stack[stack.length - 1].children: result;
-        let resultToken: Token;
-
-        let newToken = tokenArray[tokenArray.length - 1];
-        let state = newToken.type;
-
-        if (!(state === StringCommentState.lC || state === StringCommentState.lWs)) {
-            resultToken = lastRealToken;
-        } else {
-            resultToken = newToken;
-        }
-        return resultToken;
-    }
     /*
     *   1. If stack has any tokens on it, add the new token as a child to the top item on the stack
     *   2. If stack is empty add the new token to the array of result tokens
@@ -511,6 +494,11 @@ export class Lexer {
 
             
         }
+    }
+
+    private setLabelForLastToken(currentState: StringCommentState) {
+        let lastState: StringCommentState = this.latestRealToken.type;
+        
     }
 
     private getTokenDebugString(lrt: Token) {
@@ -655,7 +643,8 @@ export class Lexer {
 
 export interface Token {
     value: string,
-    type: StringCommentState
+    type: StringCommentState;
+    label?: ResolvedState;
     children?: Token[];
     error?: boolean;
 }
