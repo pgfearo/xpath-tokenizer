@@ -20,13 +20,21 @@ export enum StringCommentState {
     rUri,   // 18 right braced URI literal
     lNl,    // 20 left numeric literal
     rNl ,    // 21 right numeric literal
-    dSep,    // 22 double char separator
+    dSep,    // 22 first char of double char separator
     lVar,    // 23 variable start: $var
     exp,     // 24 exponent in numeric literal - allow + or - or digit after it
     lName,   // 25 node-name, function-name or operator like 'is' etc
     lAttr,   // 26 attribute-name
-    dSep2,
+    dSep2,   // 27 2nd char of double char separator
+}
 
+export enum ResolvedState {
+    Operator,
+    NodeType,
+    Axis,
+    Name,
+    Declaration,
+    Function,
 }
 
 export class Lexer {
@@ -42,19 +50,46 @@ export class Lexer {
     private static axes = [ "ancestor", "ancestor-or-self", "child", "descendant", "descendant-or-self", 
                             "following", "following-sibling", "namespace", "parent", "preceding", "preceding-sibling", "self"];
 
-    private static nodeTests = [ "attribute", 
+    private static nodeTypes = [ "attribute", 
                                 "comment", "document-node", "attribute", "element", "empty-sequence", "item", "namespace-node", "node", 
                                 "processing-instruction", 
                                 "schema-attribute", "schema-element", "text"];                        
 
     private static keywords = [ "and", "array", "div", 
-                                "else", "eq", "every", "except","for", 
+                                "else", "eq", "except",
                                 "function", "ge", "gt", "idiv", "if", "in", "intersect", "is", "le",
-                                "let", "lt", "map", "mod", "ne", "or", "return", "satisfies",
-                                "some", "then", "to", "treat", "union"];
-    private static firstParts = [ "cast", "castable", "instance"];
+                                "lt", "map", "mod", "ne", "or", "return", "satisfies",
+                                "then", "to", "treat", "union"];
 
+    private static rangeVars = ["every", "for", "let", "some"]
+    private static firstParts = [ "cast", "castable", "instance"];
     private static secondParts = ["as", "of"];
+
+    public static stringResolvedStateToString (resolvedState: ResolvedState) : string {
+        let r: string = undefined;
+
+        switch (resolvedState) {
+            case ResolvedState.Axis:
+                r = "Axis";
+                break;
+            case ResolvedState.Declaration:
+                r = "Declaration";
+                break;
+            case ResolvedState.Function:
+                r = "Function";
+                break;
+            case ResolvedState.Name:
+                r = "Name";
+                break;
+            case ResolvedState.NodeType:
+                r = "NodeType";
+                break;
+            case ResolvedState.Operator:
+                r = "Operator";
+                break;
+        }
+        return r;
+    }
 
     public static stringCommentStateToString (stringCommentState: StringCommentState) : string {
         let result: string = undefined;
@@ -118,7 +153,7 @@ export class Lexer {
                 result = "dSep2";
                 break;
             case StringCommentState.lUri:
-                result = "lUri";
+                result = "URILiteral";
                 break;
             case StringCommentState.rUri:
                 result = "rUri";
