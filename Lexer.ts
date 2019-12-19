@@ -1,4 +1,4 @@
-export enum StringCommentState {
+export enum CharLevelState {
     init,// 0 initial state
     lB,  // 1 left bracket
     rB,  // 2 right bracket
@@ -28,7 +28,7 @@ export enum StringCommentState {
     dSep2,   // 27 2nd char of double char separator
 }
 
-export enum ResolvedState {
+export enum TokenLevelState {
     Operator,
     NodeType,
     Axis,
@@ -65,134 +65,134 @@ export class Lexer {
     private static firstParts = [ "cast", "castable", "instance"];
     private static secondParts = ["as", "of"];
 
-    public static stringResolvedStateToString (resolvedState: ResolvedState) : string {
+    public static stringResolvedStateToString (resolvedState: TokenLevelState) : string {
         let r: string = undefined;
 
         switch (resolvedState) {
-            case ResolvedState.Axis:
+            case TokenLevelState.Axis:
                 r = "Axis";
                 break;
-            case ResolvedState.Declaration:
+            case TokenLevelState.Declaration:
                 r = "Declaration";
                 break;
-            case ResolvedState.Function:
+            case TokenLevelState.Function:
                 r = "Function";
                 break;
-            case ResolvedState.Name:
+            case TokenLevelState.Name:
                 r = "Name";
                 break;
-            case ResolvedState.NodeType:
+            case TokenLevelState.NodeType:
                 r = "NodeType";
                 break;
-            case ResolvedState.Operator:
+            case TokenLevelState.Operator:
                 r = "Operator";
                 break;
         }
         return r;
     }
 
-    public static stringCommentStateToString (stringCommentState: StringCommentState) : string {
+    public static stringCommentStateToString (stringCommentState: CharLevelState) : string {
         let result: string = undefined;
 
         switch (stringCommentState) {
-            case StringCommentState.init:
+            case CharLevelState.init:
                 result = "init";
                 break;
-            case StringCommentState.lB:
+            case CharLevelState.lB:
                 result = "lB";
                 break;
-            case StringCommentState.rB:
+            case CharLevelState.rB:
                 result = "rB";
                 break;
-            case StringCommentState.lC:
+            case CharLevelState.lC:
                 result = "Comment";
                 break;
-            case StringCommentState.rC:
+            case CharLevelState.rC:
                 result = "rC";
                 break;
-            case StringCommentState.lSq:
+            case CharLevelState.lSq:
                 result = "StringLiteral";
                 break;
-            case StringCommentState.rSq:
+            case CharLevelState.rSq:
                 result = "rSq";
                 break;
-            case StringCommentState.lDq:
+            case CharLevelState.lDq:
                 result = "lDq";
                 break;
-            case StringCommentState.rDq:
+            case CharLevelState.rDq:
                 result = "rDq";
                 break;
-            case StringCommentState.lBr:
+            case CharLevelState.lBr:
                 result = "lBr";
                 break;
-            case StringCommentState.rBr:
+            case CharLevelState.rBr:
                 result = "rBr";
                 break;
-            case StringCommentState.lWs:
+            case CharLevelState.lWs:
                 result = "Whitespace";
                 break;
-            case StringCommentState.lPr:
+            case CharLevelState.lPr:
                 result = "lPr";
                 break;
-            case StringCommentState.rPr:
+            case CharLevelState.rPr:
                 result = "rPr";
                 break;
-            case StringCommentState.escDq:
+            case CharLevelState.escDq:
                 result = "escDq";
                 break;
-            case StringCommentState.escSq:
+            case CharLevelState.escSq:
                 result = "escSq";
                 break;
-            case StringCommentState.sep:
+            case CharLevelState.sep:
                 result = "sep";
                 break;
-            case StringCommentState.dSep:
+            case CharLevelState.dSep:
                 result = "dSep";
                 break;
-            case StringCommentState.dSep2:
+            case CharLevelState.dSep2:
                 result = "dSep2";
                 break;
-            case StringCommentState.lUri:
+            case CharLevelState.lUri:
                 result = "URILiteral";
                 break;
-            case StringCommentState.rUri:
+            case CharLevelState.rUri:
                 result = "rUri";
                 break;
-            case StringCommentState.lNl:
+            case CharLevelState.lNl:
                 result = "NumericLiteral";
                 break;
-            case StringCommentState.rNl:
+            case CharLevelState.rNl:
                 result = "rNl";
                 break;
-            case StringCommentState.lVar:
+            case CharLevelState.lVar:
                 result = "Variable";
                 break;
-            case StringCommentState.exp:
+            case CharLevelState.exp:
                 result = "Exponent";
                 break;
-            case StringCommentState.lName:
+            case CharLevelState.lName:
                 result = "Name";
                 break;
-            case StringCommentState.lAttr:
+            case CharLevelState.lAttr:
                 result = "Attribute";
                 break;
          }
         return result;
     }
 
-    private static calcNewState (isFirstChar: boolean, nesting: number, char: string, nextChar: string, existing: StringCommentState): [StringCommentState, number] {
-        let rv: StringCommentState;
+    private static calcNewState (isFirstChar: boolean, nesting: number, char: string, nextChar: string, existing: CharLevelState): [CharLevelState, number] {
+        let rv: CharLevelState;
         let firstCharOfToken = true;
 
         switch (existing) {
-            case StringCommentState.lNl:
+            case CharLevelState.lNl:
                 let charCode = char.charCodeAt(0);
                 let nextCharCode = (nextChar)? nextChar.charCodeAt(0): -1;
                 if (Lexer.isDigit(charCode) || char === '.') {
                     rv = existing;
                 } else if (char === 'e' || char === 'E') {
                     if (nextChar === '-' || nextChar === '+' || Lexer.isDigit(nextCharCode)) {
-                        rv = StringCommentState.exp;
+                        rv = CharLevelState.exp;
                     } else {
                         rv = existing;
                     }
@@ -200,10 +200,10 @@ export class Lexer {
                     ({ rv, nesting } = Lexer.testChar(existing, firstCharOfToken, char, nextChar, nesting));
                 }
                 break;
-            case StringCommentState.exp:
-                rv = StringCommentState.lNl;
+            case CharLevelState.exp:
+                rv = CharLevelState.lNl;
                 break;
-            case StringCommentState.lWs:
+            case CharLevelState.lWs:
                 if (char === ' ' || char === '\t' || char === '\n' || char === '\f') {
                     rv = existing;
                 } else {
@@ -211,9 +211,9 @@ export class Lexer {
                     ({ rv, nesting } = Lexer.testChar(existing, firstCharOfToken, char, nextChar, nesting));
                 }
                 break;
-            case StringCommentState.lName:
-            case StringCommentState.lVar:
-            case StringCommentState.lAttr:
+            case CharLevelState.lName:
+            case CharLevelState.lVar:
+            case CharLevelState.lAttr:
                 if (char === '-' || char === '.' || char === ':') {
                     rv = existing;
                 } else {
@@ -221,43 +221,43 @@ export class Lexer {
                     ({ rv, nesting } = Lexer.testChar(existing, isFirstChar, char, nextChar, nesting));
                 }
                 break;
-            case StringCommentState.dSep:
-                rv = StringCommentState.dSep2;
+            case CharLevelState.dSep:
+                rv = CharLevelState.dSep2;
                 break;
-            case StringCommentState.lUri:
-                rv = (char === '}')? StringCommentState.rUri : existing;
+            case CharLevelState.lUri:
+                rv = (char === '}')? CharLevelState.rUri : existing;
                 break;
-            case StringCommentState.lSq:
+            case CharLevelState.lSq:
                 if (char === '\'' ) {
                     if (nextChar === '\'') {
-                        rv = StringCommentState.escSq;
+                        rv = CharLevelState.escSq;
                     } else {
-                        rv = StringCommentState.rSq;
+                        rv = CharLevelState.rSq;
                     }
                 } else {
                     rv = existing;
                 }
                 break;
-            case StringCommentState.escSq:
-                rv = StringCommentState.lSq;
+            case CharLevelState.escSq:
+                rv = CharLevelState.lSq;
                 break;
-            case StringCommentState.escDq:
-                rv = StringCommentState.lDq;
+            case CharLevelState.escDq:
+                rv = CharLevelState.lDq;
                 break;
-            case StringCommentState.lDq:
+            case CharLevelState.lDq:
                 if (char === '\"') {
                     if (nextChar === '\"') {
-                        rv = StringCommentState.escDq;
+                        rv = CharLevelState.escDq;
                     } else {
-                        rv = StringCommentState.rDq;
+                        rv = CharLevelState.rDq;
                     }
                 } else {
                     rv = existing;
                 }
                 break;  
-            case StringCommentState.lC:
+            case CharLevelState.lC:
                 if (char === ':' && nextChar === ')') {
-                    rv = (nesting === 1)? StringCommentState.rC : existing; 
+                    rv = (nesting === 1)? CharLevelState.rC : existing; 
                     nesting--;
                 } else if (char === '(' && nextChar === ':') {
                     rv = existing;
@@ -275,7 +275,7 @@ export class Lexer {
     public analyse(xpath: string): Token[] {
         this.latestRealToken = null;
         let prevRealToken: Token = null;
-        let currentState: [StringCommentState, number] = [StringCommentState.init, 0];
+        let currentState: [CharLevelState, number] = [CharLevelState.init, 0];
         let currentChar: string = null;
         let tokenChars: string[] = [];
         let result: Token[] = [];
@@ -289,7 +289,7 @@ export class Lexer {
             // deconstruct state:
             let [currentLabelState, nestingState] = currentState;
             let nextChar: string = xpath.charAt(i);
-            let nextState: [StringCommentState, number];
+            let nextState: [CharLevelState, number];
             let isFirstTokenChar = tokenChars.length === 0;
     
             if (currentChar) {
@@ -303,48 +303,48 @@ export class Lexer {
                 let [nextLabelState] = nextState;
                 let token: string;
                 if (nextLabelState === currentLabelState || 
-                   (currentLabelState === StringCommentState.exp && nextLabelState == StringCommentState.lNl)) {
+                   (currentLabelState === CharLevelState.exp && nextLabelState == CharLevelState.lNl)) {
                     // do nothing if state has not changed
                     // or we're within a number with an exponent
                     tokenChars.push(currentChar);
                 } else {
                     // state has changed, so save token and start new token
                     switch (nextLabelState){
-                        case StringCommentState.lNl:
-                        case StringCommentState.lVar:
-                        case StringCommentState.lName:
+                        case CharLevelState.lNl:
+                        case CharLevelState.lVar:
+                        case CharLevelState.lName:
                             this.updateResult(nestedTokenStack, result, {value: tokenChars.join(''), type: currentLabelState});
                             tokenChars = [];
                             tokenChars.push(currentChar);
                             break;
-                        case StringCommentState.exp:
+                        case CharLevelState.exp:
                             tokenChars.push(currentChar);
                             break;
-                        case StringCommentState.dSep:
+                        case CharLevelState.dSep:
                             this.updateResult(nestedTokenStack, result, {value: tokenChars.join(''), type: currentLabelState});
                             let bothChars = currentChar + nextChar;
                             this.updateResult(nestedTokenStack, result, {value: bothChars , type: nextLabelState});
                             tokenChars = [];
                             break;
-                        case StringCommentState.dSep2:
+                        case CharLevelState.dSep2:
                             break;
-                        case StringCommentState.sep:
+                        case CharLevelState.sep:
                             this.updateResult(nestedTokenStack, result, {value: tokenChars.join(''), type: currentLabelState});
                             this.updateResult(nestedTokenStack, result, {value: currentChar, type: nextLabelState});
                             tokenChars = [];
                             break;
-                        case StringCommentState.escSq:
-                        case StringCommentState.escDq:
+                        case CharLevelState.escSq:
+                        case CharLevelState.escDq:
                             tokenChars.push(currentChar); 
                             break;
-                        case StringCommentState.rC:
+                        case CharLevelState.rC:
                             tokenChars.push(':)');
                             token = tokenChars.join('');
                             tokenChars = [];
                             break;
-                        case StringCommentState.lB:
-                        case StringCommentState.lBr:
-                        case StringCommentState.lPr:
+                        case CharLevelState.lB:
+                        case CharLevelState.lBr:
+                        case CharLevelState.lPr:
                             this.updateResult(nestedTokenStack, result, {value: tokenChars.join(''), type: currentLabelState});
                             tokenChars = [];
                             let currentToken: ContainerToken = new ContainerToken(currentChar, nextLabelState);
@@ -353,10 +353,10 @@ export class Lexer {
                             nestedTokenStack.push(currentToken);
                             this.latestRealToken = null;                   
                             break;
-                        case StringCommentState.rB:
-                        case StringCommentState.rBr:
-                        case StringCommentState.rPr:
-                            if (currentLabelState !== StringCommentState.rC) {
+                        case CharLevelState.rB:
+                        case CharLevelState.rBr:
+                        case CharLevelState.rPr:
+                            if (currentLabelState !== CharLevelState.rC) {
                                 let prevToken: Token = {value: tokenChars.join(''), type: currentLabelState};
                                 this.updateResult(nestedTokenStack, result, prevToken);
                                 let newToken: Token = {value: currentChar, type: nextLabelState};
@@ -375,29 +375,29 @@ export class Lexer {
                             }
                             break;
                             
-                        case StringCommentState.rSq:
-                        case StringCommentState.rDq:
-                        case StringCommentState.rUri:
+                        case CharLevelState.rSq:
+                        case CharLevelState.rDq:
+                        case CharLevelState.rUri:
                             tokenChars.push(currentChar);
                             token = tokenChars.join('');
                             tokenChars = [];                       
                             break;
-                        case StringCommentState.lSq:
-                        case StringCommentState.lDq:
-                        case StringCommentState.lC:
-                        case StringCommentState.lWs:
-                        case StringCommentState.lUri:
-                            if (currentLabelState !== StringCommentState.escSq && currentLabelState !== StringCommentState.escDq) {
+                        case CharLevelState.lSq:
+                        case CharLevelState.lDq:
+                        case CharLevelState.lC:
+                        case CharLevelState.lWs:
+                        case CharLevelState.lUri:
+                            if (currentLabelState !== CharLevelState.escSq && currentLabelState !== CharLevelState.escDq) {
                                 token = tokenChars.join('');
                                 tokenChars = [];
                             }
                             tokenChars.push(currentChar);
                             break;              
                         default:
-                            if (currentLabelState === StringCommentState.rC) {
+                            if (currentLabelState === CharLevelState.rC) {
                                 // in this case, don't include ')' as it is part of last token
                                 tokenChars = [];
-                            } else if (currentLabelState === StringCommentState.lWs) {
+                            } else if (currentLabelState === CharLevelState.lWs) {
                                 // set whitespace token and then initial with currentChar
                                 token = tokenChars.join('');
                                 tokenChars = []; 
@@ -445,18 +445,18 @@ export class Lexer {
         return result;
     }
 
-    private static closeMatchesOpen(close: StringCommentState, stack: Token[]): boolean {
-        let open: StringCommentState = stack[stack.length - 1].type;
+    private static closeMatchesOpen(close: CharLevelState, stack: Token[]): boolean {
+        let open: CharLevelState = stack[stack.length - 1].type;
         let result: boolean = false;
         switch (close) {
-            case StringCommentState.rB:
-                result = open === StringCommentState.lB;
+            case CharLevelState.rB:
+                result = open === CharLevelState.lB;
                 break;
-            case StringCommentState.rBr:
-                result = open === StringCommentState.lBr;
+            case CharLevelState.rBr:
+                result = open === CharLevelState.lBr;
                 break;
-            case StringCommentState.rPr:
-                result = open === StringCommentState.lPr;
+            case CharLevelState.rPr:
+                result = open === CharLevelState.lPr;
         }
         return result;
     }
@@ -474,7 +474,7 @@ export class Lexer {
             targetArray.push(newValue);
 
             let state = newValue.type;
-            if (!(state === StringCommentState.lC || state === StringCommentState.lWs)) {
+            if (!(state === CharLevelState.lC || state === CharLevelState.lWs)) {
                 this.latestRealToken = newValue;
             } 
         }
@@ -486,7 +486,7 @@ export class Lexer {
 
             let cachedTpadding: string = Lexer.padColumns(cachedRealTokenString.length);
             let newTpadding: string = Lexer.padColumns(newT.length);
-            if (newValue.type === StringCommentState.lWs && !(showWhitespace)) {
+            if (newValue.type === CharLevelState.lWs && !(showWhitespace)) {
                 // show nothing
             } else {
                 console.log(cachedRealTokenString + cachedTpadding +  newT);
@@ -496,9 +496,9 @@ export class Lexer {
         }
     }
 
-    private setLabelForLastToken(currentState: StringCommentState) {
-        let lastState: StringCommentState = this.latestRealToken.type;
-        
+    private setLabelForLastToken(currentState: CharLevelState) {
+        let lastState: CharLevelState = this.latestRealToken.type;
+
     }
 
     private getTokenDebugString(lrt: Token) {
@@ -543,70 +543,70 @@ export class Lexer {
         console.log('===============================================================================================================');
     }
 
-    private static testChar(existingState: StringCommentState, isFirstChar: boolean, char: string, nextChar: string, nesting: number) {
-        let rv: StringCommentState;
+    private static testChar(existingState: CharLevelState, isFirstChar: boolean, char: string, nextChar: string, nesting: number) {
+        let rv: CharLevelState;
 
         switch (char) {
             case 'Q':
-                rv = (nextChar === '{')? StringCommentState.lUri : StringCommentState.init;
+                rv = (nextChar === '{')? CharLevelState.lUri : CharLevelState.init;
                 break;
             case '(':
                 if (nextChar === ':') {
-                    rv = StringCommentState.lC;
+                    rv = CharLevelState.lC;
                     nesting++;
                 } else if (nextChar == ')') {
-                    rv = StringCommentState.dSep;
+                    rv = CharLevelState.dSep;
                 }
                 else {
-                    rv = StringCommentState.lB;
+                    rv = CharLevelState.lB;
                 }
                 break;
             case '{':
                 if (nextChar === '}') {
-                    rv = StringCommentState.dSep;
+                    rv = CharLevelState.dSep;
                 } else {
-                    rv = StringCommentState.lBr;
+                    rv = CharLevelState.lBr;
                 }
                 break;
             case '[':
                 if (nextChar === ']') {
-                    rv = StringCommentState.dSep;
+                    rv = CharLevelState.dSep;
                 } else {
-                    rv = StringCommentState.lPr;
+                    rv = CharLevelState.lPr;
                 }
                 break;
             case ')':
-                rv = StringCommentState.rB;
+                rv = CharLevelState.rB;
                 break;
             case ']':
-                rv = StringCommentState.rPr;
+                rv = CharLevelState.rPr;
                 break;
             case '}':
-                rv = StringCommentState.rBr
+                rv = CharLevelState.rBr
                 break;
             case '\'':
-                rv = StringCommentState.lSq;
+                rv = CharLevelState.lSq;
                 break;
             case '\"':
-                rv = StringCommentState.lDq;
+                rv = CharLevelState.lDq;
                 break;
             case ' ':
             case '\t':
             case '\n':
             case '\f':
-                rv = StringCommentState.lWs;
+                rv = CharLevelState.lWs;
                 break;
             case '+':
             case '-':
-                rv = StringCommentState.sep;
+                rv = CharLevelState.sep;
                 break;
             default:
                 let doubleChar = char + nextChar;
                 if ((nextChar) && this.doubleSeps.indexOf(doubleChar) > -1) {
-                    rv = StringCommentState.dSep;
+                    rv = CharLevelState.dSep;
                     break;
                 } else if (this.separators.indexOf(char) > -1) {
-                    rv = StringCommentState.sep;
+                    rv = CharLevelState.sep;
                 } else if (isFirstChar) {
                     let charCode = char.charCodeAt(0);
                     let nextCharCode = (nextChar)? nextChar.charCodeAt(0): -1;
@@ -614,18 +614,18 @@ export class Lexer {
                     if (charCode === 46) {
                         if (nextCharCode === 46) {
                             // '..' parent axis
-                            rv = StringCommentState.dSep;
+                            rv = CharLevelState.dSep;
                         } else {
-                            rv = this.isDigit(nextCharCode)? StringCommentState.lNl : StringCommentState.sep;
+                            rv = this.isDigit(nextCharCode)? CharLevelState.lNl : CharLevelState.sep;
                         }
                     } else if (this.isDigit(charCode)) {
-                        rv = StringCommentState.lNl;
+                        rv = CharLevelState.lNl;
                     } else if (char === '$') {
-                        rv = StringCommentState.lVar;
+                        rv = CharLevelState.lVar;
                     } else if (char === '@') {
-                        rv = StringCommentState.lAttr;
+                        rv = CharLevelState.lAttr;
                     } else {
-                        rv = StringCommentState.lName;
+                        rv = CharLevelState.lName;
                     }
                 } else {
                     rv = existingState;
@@ -643,19 +643,19 @@ export class Lexer {
 
 export interface Token {
     value: string,
-    type: StringCommentState;
-    label?: ResolvedState;
+    type: CharLevelState;
+    label?: TokenLevelState;
     children?: Token[];
     error?: boolean;
 }
 
 class ContainerToken implements Token {
-    constructor(value: string, type: StringCommentState) {
+    constructor(value: string, type: CharLevelState) {
         this.children = [];
         this.value = value;
         this.type = type;
     }
     value: string;
-    type: StringCommentState;
+    type: CharLevelState;
     children: Token[];
 }

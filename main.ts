@@ -1,4 +1,4 @@
-import { Lexer, StringCommentState, Token } from "./Lexer";
+import { Lexer, CharLevelState, Token } from "./Lexer";
 
 let xpath1 = "pp(:(:q:)z:)rr'ss''mm'tt";
 let xpath2 = "pp'qq''rr'ss";
