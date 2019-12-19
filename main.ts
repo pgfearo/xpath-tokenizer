@@ -25,11 +25,11 @@ let xpath13 = `let $increment := function($x as xs:integer) as xs:integer* {
 	$x + 2, Q{http://example.com}div
 } return books/book/@title + $test`;
 // tests
-let xpath14 = 'integer*integer';
+let xpath14 = '$a instance of xs:integer';
 
 let lexer: Lexer = new Lexer();
 
-let testXpath = xpath13;
+let testXpath = xpath14;
 
 let tokens: Token[] = lexer.analyse(testXpath);
 console.log('*************');
@@ -40,7 +40,7 @@ tokens.forEach(showTokens);
 
 function showTokens(token: Token) {
     let err = (token.error)? ' error' : '';
-    console.log('#' + token.value + '# ' + Lexer.stringCommentStateToString(token.type) + err);
+    console.log('#' + token.value + '# ' + Lexer.charStateToString(token.charType) + ',' + Lexer.tokenStateToString(token.tokenType) + err) 
     if (token.children) {
         console.log('--- children-start---');
         token.children.forEach(showTokens);
