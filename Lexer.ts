@@ -35,10 +35,31 @@ export enum TokenLevelState {
     Name,
     Declaration,
     Function,
+    If,
 }
 
 export class Data {
-    
+    public static separators = ['!','*', '+', ',', '-', '.', '/', ':', '<', '=', '>', '?','|'];
+
+    public static doubleSeps = ['!=', '*:', '..', '//', ':*', '::', ':=', '<<', '<=', '=>', '>=', '>>', '||'];
+
+    public static axes = [ "ancestor", "ancestor-or-self", "child", "descendant", "descendant-or-self", 
+                            "following", "following-sibling", "namespace", "parent", "preceding", "preceding-sibling", "self"];
+
+    public static nodeTypes = [ "attribute", 
+                                "comment", "document-node", "attribute", "element", "empty-sequence", "item", "namespace-node", "node", 
+                                "processing-instruction", 
+                                "schema-attribute", "schema-element", "text"];                        
+
+    public static keywords = [ "and", "array", "div", 
+                                "else", "eq", "except",
+                                "function", "ge", "gt", "idiv", "if", "in", "intersect", "is", "le",
+                                "lt", "map", "mod", "ne", "or", "return", "satisfies",
+                                "then", "to", "treat", "union"];
+
+    public static rangeVars = ["every", "for", "let", "some"]
+    public static firstParts = [ "cast", "castable", "instance"];
+    public static secondParts = ["as", "of"];
 }
 
 export class Lexer {
@@ -46,28 +67,6 @@ export class Lexer {
     public debug: boolean = true;
     public debugState: boolean = false;
     private latestRealToken: Token;
-
-    private static separators = ['!','*', '+', ',', '-', '.', '/', ':', '<', '=', '>', '?','|'];
-
-    private static doubleSeps = ['!=', '*:', '..', '//', ':*', '::', ':=', '<<', '<=', '=>', '>=', '>>', '||'];
-
-    private static axes = [ "ancestor", "ancestor-or-self", "child", "descendant", "descendant-or-self", 
-                            "following", "following-sibling", "namespace", "parent", "preceding", "preceding-sibling", "self"];
-
-    private static nodeTypes = [ "attribute", 
-                                "comment", "document-node", "attribute", "element", "empty-sequence", "item", "namespace-node", "node", 
-                                "processing-instruction", 
-                                "schema-attribute", "schema-element", "text"];                        
-
-    private static keywords = [ "and", "array", "div", 
-                                "else", "eq", "except",
-                                "function", "ge", "gt", "idiv", "if", "in", "intersect", "is", "le",
-                                "lt", "map", "mod", "ne", "or", "return", "satisfies",
-                                "then", "to", "treat", "union"];
-
-    private static rangeVars = ["every", "for", "let", "some"]
-    private static firstParts = [ "cast", "castable", "instance"];
-    private static secondParts = ["as", "of"];
 
     private static isPartOperator(firstPart: string, secondPart: string): boolean {
         let result = false;
@@ -104,6 +103,9 @@ export class Lexer {
                 break;
             case TokenLevelState.Operator:
                 r = "Operator";
+                break;
+            case TokenLevelState.If:
+                r = "If";
                 break;
             default:
                 r = "";
@@ -191,7 +193,7 @@ export class Lexer {
                 result = "Exponent";
                 break;
             case CharLevelState.lName:
-                result = "Name";
+                result = "lName";
                 break;
             case CharLevelState.lAttr:
                 result = "Attribute";
@@ -234,7 +236,7 @@ export class Lexer {
             case CharLevelState.lName:
             case CharLevelState.lVar:
             case CharLevelState.lAttr:
-                if (char === '-' || char === '.' || char === ':') {
+                if (char === '-' || char === '.' || (char === ':' && nextChar !== ':')) {
                     rv = existing;
                 } else {
                     // we must switch to the new state, depending on the char/nextChar
@@ -526,13 +528,33 @@ export class Lexer {
             let lastState: CharLevelState = prevToken.charType;
             if (prevToken.tokenType) {
                 // do nothing as it's already been set
-            } else {
+            } else if (prevToken.charType.valueOf() === CharLevelState.lName.valueOf()) {
+                // prev tokens was a name so it may need resetting
                 switch (currentState) {
                     case CharLevelState.lVar:
-                        if (prevToken.charType === CharLevelState.lName 
-                            && Lexer.rangeVars.indexOf(prevToken.value) > -1) {
+                        if (Data.rangeVars.indexOf(prevToken.value) > -1) {
                                 // every, for, let, some
                                 prevToken.tokenType = TokenLevelState.Declaration;
+                        }
+                        break;
+                    case CharLevelState.lB:
+                        if (prevToken.value === 'if') {
+                            prevToken.tokenType = TokenLevelState.If;
+                        } else if (Data.nodeTypes.indexOf(prevToken.value) > -1) {
+                            prevToken.tokenType = TokenLevelState.NodeType;
+                        } else {
+                            prevToken.tokenType = TokenLevelState.Function;
+                        }
+                        break;
+                    case CharLevelState.dSep:
+                        if (currentToken.value === '::' && Data.axes.indexOf(prevToken.value) > -1) {
+                            prevToken.tokenType = TokenLevelState.Axis;
+                        } else if (currentToken.value === '()') {
+                            if (Data.nodeTypes.indexOf(prevToken.value) > -1) {
+                                prevToken.tokenType = TokenLevelState.NodeType;
+                            } else {
+                                prevToken.tokenType = TokenLevelState.Function;
+                            }
                         }
                         break;
                 }
@@ -545,23 +567,38 @@ export class Lexer {
         if (!(prevToken)) {
             prevToken = new BasicToken(',', CharLevelState.sep);
         }
-        let lastState: CharLevelState = prevToken.charType;
+        let currentValue = currentToken.value;
 
         switch (currentToken.charType) {
+            case CharLevelState.dSep:
+                currentToken.tokenType = TokenLevelState.Operator;
+                break;
             case CharLevelState.lName:
-
+                // token is a 'name' that needs resolving:
+                // a Name cannot follow a Name -- unless it's like 'instance of'
                 switch (prevToken.charType) {
                     case CharLevelState.lName:
-                        if (Lexer.secondParts.indexOf(currentToken.value) > -1
-                        && Lexer.isPartOperator(prevToken.value, currentToken.value)) {
+                        if (Data.secondParts.indexOf(currentValue) > -1
+                        && Lexer.isPartOperator(prevToken.value, currentValue)) {
                             // castable as etc.
                             prevToken.tokenType = TokenLevelState.Operator;
                             currentToken.tokenType = TokenLevelState.Operator;                               
+                        } else if (prevToken.charType.valueOf() === CharLevelState.sep.valueOf() ||
+                                   prevToken.charType.valueOf() === CharLevelState.dSep.valueOf()) {
+                                       currentToken.tokenType = TokenLevelState.Name;
                         }
                         break;
-                    case CharLevelState.sep:
+                    case CharLevelState.rB:
+                        // prev was ')' so this name must be an operator of some kind
+                        // options: as, then, is, instance of, castable as, occurrence-indicator ?, *, +
+                        // or any separator
+                        currentToken.tokenType = TokenLevelState.Operator;
                         break;
                 }
+                break;
+            case CharLevelState.dSep:
+            case CharLevelState.dSep2:
+                currentToken.tokenType = TokenLevelState.Operator; 
                 break;
 
         }
@@ -669,10 +706,10 @@ export class Lexer {
                 break;
             default:
                 let doubleChar = char + nextChar;
-                if ((nextChar) && this.doubleSeps.indexOf(doubleChar) > -1) {
+                if ((nextChar) && Data.doubleSeps.indexOf(doubleChar) > -1) {
                     rv = CharLevelState.dSep;
                     break;
-                } else if (this.separators.indexOf(char) > -1) {
+                } else if (Data.separators.indexOf(char) > -1) {
                     rv = CharLevelState.sep;
                 } else if (isFirstChar) {
                     let charCode = char.charCodeAt(0);

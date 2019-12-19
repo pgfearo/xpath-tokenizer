@@ -25,7 +25,7 @@ let xpath13 = `let $increment := function($x as xs:integer) as xs:integer* {
 	$x + 2, Q{http://example.com}div
 } return books/book/@title + $test`;
 // tests
-let xpath14 = '$a instance of xs:integer';
+let xpath14 = 'if ($myvar) then callit()';
 
 let lexer: Lexer = new Lexer();
 
