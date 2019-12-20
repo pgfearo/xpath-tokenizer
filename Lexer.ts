@@ -472,7 +472,7 @@ export class Lexer {
 
         switch (char) {
             case 'Q':
-                rv = (nextChar === '{')? CharLevelState.lUri : CharLevelState.init;
+                rv = (nextChar === '{')? CharLevelState.lUri : CharLevelState.lName;
                 break;
             case '(':
                 if (nextChar === ':') {

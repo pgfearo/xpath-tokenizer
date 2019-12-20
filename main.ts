@@ -26,7 +26,7 @@ let xpath13 = `let $increment := function($x as xs:integer) as xs:integer* {
 	$x + 2, Q{http://example.com}div
 } return books/book/@title + $test`;
 // tests
-let xpath14 = 'and and and and every $a in and satisfies $a eq "new"';
+let xpath14 = 'fn:error(xs:QName("app:err057"), "Unexpected value", fn:string($v))';
 
 let lexer: Lexer = new Lexer();
 
