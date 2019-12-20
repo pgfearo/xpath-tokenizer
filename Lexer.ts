@@ -47,7 +47,7 @@ export class Data {
 
     public static doubleSeps = ['!=', '*:', '..', '//', ':*', '::', ':=', '<<', '<=', '=>', '>=', '>>', '||'];
 
-    public static axes = [ "ancestor", "ancestor-or-self", "child", "descendant", "descendant-or-self", 
+    public static axes = [ "ancestor", "ancestor-or-self", "attribute", "child", "descendant", "descendant-or-self", 
                             "following", "following-sibling", "namespace", "parent", "preceding", "preceding-sibling", "self"];
 
     public static nodeTypes = [ "attribute", 
