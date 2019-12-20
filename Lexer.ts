@@ -208,8 +208,11 @@ export class Lexer {
                 );
                 let [nextLabelState] = nextState;
                 let token: string;
-                if (nextLabelState === currentLabelState || 
-                   (currentLabelState === CharLevelState.exp && nextLabelState == CharLevelState.lNl)) {
+                if (
+                    (nextLabelState === currentLabelState
+                        && !(this.unChangedStateSignificant(currentLabelState))
+                    )
+                    || (currentLabelState === CharLevelState.exp && nextLabelState == CharLevelState.lNl)) {
                     // do nothing if state has not changed
                     // or we're within a number with an exponent
                     tokenChars.push(currentChar);
@@ -362,6 +365,22 @@ export class Lexer {
     */
     private update(stack: Token[], result: Token[], tokenChars: string[], charState: CharLevelState) {
         this.updateResult(stack, result, {value: tokenChars.join(''), charType: charState, tokenType: TokenLevelState.Unset} );
+    }
+
+    private unChangedStateSignificant(charState: CharLevelState): boolean {
+        let 
+        result: boolean = false;
+        switch (charState) {
+            case CharLevelState.lB:
+            case CharLevelState.lBr:
+            case CharLevelState.lPr:
+            case CharLevelState.rB:
+            case CharLevelState.rBr:
+            case CharLevelState.rPr:
+            case CharLevelState.sep:
+                result = true;
+        }
+        return result;
     }
 
     private updateResult(stack: Token[], result: Token[], newValue: Token) {
