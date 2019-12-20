@@ -457,6 +457,10 @@ export class Lexer {
                         if (Lexer.isTokenTypeUnset(prevToken)
                              && Data.keywords.indexOf(currentValue) > -1) {
                             currentToken.tokenType = TokenLevelState.Operator;
+                        } else if (Lexer.isCharTypeEqual(prevToken, CharLevelState.dSep) 
+                                    && prevToken.value === '()' 
+                                    && Data.keywords.indexOf(currentValue) > -1) {
+                            currentToken.tokenType = TokenLevelState.Operator;
                         } else if (Lexer.isTokenTypeEqual(prevToken, TokenLevelState.Operator) && 
                             (prevToken.value === 'as' || prevToken.value === 'of')) {
                             currentToken.tokenType = TokenLevelState.SimpleType;
