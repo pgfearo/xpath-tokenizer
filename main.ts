@@ -26,9 +26,7 @@ let xpath13 = `let $increment := function($x as xs:integer) as xs:integer* {
 	$x + 2, Q{http://example.com}div
 } return books/book/@title + $test`;
 // tests
-let xpath14 = `let $f := function ($seq, $delim) { fn:fold-left($seq, "", fn:concat(?, $delim, ?)) },
-$paf := $f(?, ".")
-return $paf(1 to 5)`;
+let xpath14 = `array [1,2,3], map {5:25, 8:28}`;
 
 let lexer: Lexer = new Lexer();
 

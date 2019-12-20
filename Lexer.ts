@@ -439,6 +439,15 @@ export class Lexer {
                             }
                         }
                         break;
+                    case CharLevelState.lPr:
+                        if (prevToken.value ===  'array') {
+                            prevToken.tokenType = TokenLevelState.Operator;
+                        }
+                        break;
+                    case CharLevelState.lBr:
+                        if (prevToken.value === 'map') {
+                            prevToken.tokenType = TokenLevelState.Operator;
+                        }
                 }
             }
         }
