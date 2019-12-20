@@ -26,7 +26,7 @@ let xpath13 = `let $increment := function($x as xs:integer) as xs:integer* {
 	$x + 2, Q{http://example.com}div
 } return books/book/@title + $test`;
 // tests
-let xpath14 = '$x castable as xs:date and true() and $result';
+let xpath14 = `{ fn:fold-left($seq, "", fn:concat(?, $delim, ?)) }`;
 
 let lexer: Lexer = new Lexer();
 

@@ -329,7 +329,7 @@ export class Lexer {
                     if (this.debug) {
                         console.log("end-token: [" + token + "]" + ' type: ' + Debug.charStateToString(currentLabelState));
                     }
-                    this.updateResult(nestedTokenStack, result, new BasicToken(token, currentLabelState));
+                    this.updateResult(nestedTokenStack, result, new BasicToken(token, nextLabelState));
                 }
                 currentState = nextState;
                 prevRealToken = this.latestRealToken;
