@@ -1,3 +1,5 @@
+import { Debug } from "./Debug";
+
 export enum CharLevelState {
     init,// 0 initial state
     lB,  // 1 left bracket
@@ -79,126 +81,6 @@ export class Lexer {
                 result = secondPart === "of";
                 break;
         }
-        return result;
-    }
-
-    public static tokenStateToString (resolvedState: TokenLevelState) : string {
-        let r: string = undefined;
-
-        switch (resolvedState) {
-            case TokenLevelState.Axis:
-                r = "Axis";
-                break;
-            case TokenLevelState.Declaration:
-                r = "Declaration";
-                break;
-            case TokenLevelState.Function:
-                r = "Function";
-                break;
-            case TokenLevelState.Name:
-                r = "Name";
-                break;
-            case TokenLevelState.NodeType:
-                r = "NodeType";
-                break;
-            case TokenLevelState.Operator:
-                r = "Operator";
-                break;
-            case TokenLevelState.If:
-                r = "If";
-                break;
-            default:
-                r = "";
-        }
-        return r;
-    }
-
-    public static charStateToString (stringCommentState: CharLevelState) : string {
-        let result: string = undefined;
-
-        switch (stringCommentState) {
-            case CharLevelState.init:
-                result = "init";
-                break;
-            case CharLevelState.lB:
-                result = "lB";
-                break;
-            case CharLevelState.rB:
-                result = "rB";
-                break;
-            case CharLevelState.lC:
-                result = "Comment";
-                break;
-            case CharLevelState.rC:
-                result = "rC";
-                break;
-            case CharLevelState.lSq:
-                result = "StringLiteral";
-                break;
-            case CharLevelState.rSq:
-                result = "rSq";
-                break;
-            case CharLevelState.lDq:
-                result = "lDq";
-                break;
-            case CharLevelState.rDq:
-                result = "rDq";
-                break;
-            case CharLevelState.lBr:
-                result = "lBr";
-                break;
-            case CharLevelState.rBr:
-                result = "rBr";
-                break;
-            case CharLevelState.lWs:
-                result = "Whitespace";
-                break;
-            case CharLevelState.lPr:
-                result = "lPr";
-                break;
-            case CharLevelState.rPr:
-                result = "rPr";
-                break;
-            case CharLevelState.escDq:
-                result = "escDq";
-                break;
-            case CharLevelState.escSq:
-                result = "escSq";
-                break;
-            case CharLevelState.sep:
-                result = "sep";
-                break;
-            case CharLevelState.dSep:
-                result = "dSep";
-                break;
-            case CharLevelState.dSep2:
-                result = "dSep2";
-                break;
-            case CharLevelState.lUri:
-                result = "URILiteral";
-                break;
-            case CharLevelState.rUri:
-                result = "rUri";
-                break;
-            case CharLevelState.lNl:
-                result = "NumericLiteral";
-                break;
-            case CharLevelState.rNl:
-                result = "rNl";
-                break;
-            case CharLevelState.lVar:
-                result = "Variable";
-                break;
-            case CharLevelState.exp:
-                result = "Exponent";
-                break;
-            case CharLevelState.lName:
-                result = "lName";
-                break;
-            case CharLevelState.lAttr:
-                result = "Attribute";
-                break;
-         }
         return result;
     }
 
@@ -304,7 +186,7 @@ export class Lexer {
         let nestedTokenStack: Token[] = [];
         if (this.debug) {
             console.log("xpath: " + xpath);
-            Lexer.debugHeading();
+            Debug.debugHeading();
         }
     
         for (let i = 0; i < xpath.length + 1; i++) {
@@ -335,7 +217,7 @@ export class Lexer {
                         case CharLevelState.lNl:
                         case CharLevelState.lVar:
                         case CharLevelState.lName:
-                            this.updateResult(nestedTokenStack, result, {value: tokenChars.join(''), charType: currentLabelState});
+                            this.update(nestedTokenStack, result, tokenChars, currentLabelState);
                             tokenChars = [];
                             tokenChars.push(currentChar);
                             break;
@@ -343,7 +225,7 @@ export class Lexer {
                             tokenChars.push(currentChar);
                             break;
                         case CharLevelState.dSep:
-                            this.updateResult(nestedTokenStack, result, {value: tokenChars.join(''), charType: currentLabelState});
+                            this.update(nestedTokenStack, result, tokenChars, currentLabelState);
                             let bothChars = currentChar + nextChar;
                             this.updateResult(nestedTokenStack, result, {value: bothChars , charType: nextLabelState});
                             tokenChars = [];
@@ -351,7 +233,7 @@ export class Lexer {
                         case CharLevelState.dSep2:
                             break;
                         case CharLevelState.sep:
-                            this.updateResult(nestedTokenStack, result, {value: tokenChars.join(''), charType: currentLabelState});
+                            this.update(nestedTokenStack, result, tokenChars, currentLabelState);
                             this.updateResult(nestedTokenStack, result, {value: currentChar, charType: nextLabelState});
                             tokenChars = [];
                             break;
@@ -367,7 +249,7 @@ export class Lexer {
                         case CharLevelState.lB:
                         case CharLevelState.lBr:
                         case CharLevelState.lPr:
-                            this.updateResult(nestedTokenStack, result, {value: tokenChars.join(''), charType: currentLabelState});
+                            this.update(nestedTokenStack, result, tokenChars, currentLabelState);
                             tokenChars = [];
                             let currentToken: ContainerToken = new ContainerToken(currentChar, nextLabelState);
                             this.updateResult(nestedTokenStack, result, currentToken);
@@ -431,22 +313,11 @@ export class Lexer {
                             break;
                     }
                     if (this.debugState) {
-                        console.log('============STATE CHANGE ===========================');
-                        let prevType: string;
-                        let prevToken: string = '';
-                        if (prevRealToken === null) {
-                            prevType = 'NULL';
-                        } else {
-                            prevType = Lexer.charStateToString(prevRealToken.charType);
-                            prevToken = prevRealToken.value;
-                        }
-                        console.log('prevReal: ' + prevType + '[' + prevToken + ']');
-                        console.log("from: " + Lexer.charStateToString(currentLabelState));
-                        console.log("to:   " + Lexer.charStateToString(nextLabelState)) + "[" + token + "]";
+                        Debug.printStateOuput(prevRealToken, currentLabelState, nextLabelState, token);
                     }
                     if (token) {
                         if (this.debugState) {
-                            console.log('[' + token + ']' + ' type: ' + Lexer.charStateToString(currentLabelState));
+                            console.log('[' + token + ']' + ' type: ' + Debug.charStateToString(currentLabelState));
                         }
                         this.updateResult(nestedTokenStack, result, {value: token, charType: currentLabelState});
                     }
@@ -454,7 +325,7 @@ export class Lexer {
                 if (!nextChar && tokenChars.length > 0) {
                     token = tokenChars.join('');
                     if (this.debug) {
-                        console.log("end-token: [" + token + "]" + ' type: ' + Lexer.charStateToString(currentLabelState));
+                        console.log("end-token: [" + token + "]" + ' type: ' + Debug.charStateToString(currentLabelState));
                     }
                     result.push({value: token, charType: currentLabelState});
                 }
@@ -488,6 +359,10 @@ export class Lexer {
     *   2. If stack is empty add the new token to the array of result tokens
     *   3. If the new token is 'real' then set the latestRealToken to the new token
     */
+    private update(stack: Token[], result: Token[], tokenChars: string[], charState: CharLevelState) {
+        this.updateResult(stack, result, {value: tokenChars.join(''), charType: charState} );
+    }
+
     private updateResult(stack: Token[], result: Token[], newValue: Token) {
         let cachedRealToken = this.latestRealToken;
         if (newValue.value !== '') {
@@ -503,21 +378,8 @@ export class Lexer {
                 this.latestRealToken = newValue;
             } 
         }
-        if (this.debug && newValue.value !== '') {
-            let showWhitespace = false;
-            let nextRealToken: string = this.getTokenDebugString(this.latestRealToken);
-            let cachedRealTokenString: string = this.getTokenDebugString(cachedRealToken);
-            let newT: string =  this.getTokenDebugString(newValue);
-
-            let cachedTpadding: string = Lexer.padColumns(cachedRealTokenString.length);
-            let newTpadding: string = Lexer.padColumns(newT.length);
-            if (newValue.charType === CharLevelState.lWs && !(showWhitespace)) {
-                // show nothing
-            } else {
-                console.log(cachedRealTokenString + cachedTpadding +  newT);
-            }
-
-            
+        if (this.debug) {
+            Debug.printDebugOutput(this.latestRealToken, cachedRealToken, newValue);
         }
     }
 
@@ -603,48 +465,6 @@ export class Lexer {
 
         }
 
-    }
-
-    private getTokenDebugString(lrt: Token) {
-        let prevType: string;
-        let prevToken: string = '';
-        if (lrt === null) {
-            prevType = 'NULL';
-        }
-        else {
-            prevType = Lexer.charStateToString(lrt.charType);
-            prevToken = lrt.value;
-        }
-        let prevTypeLength = (prevType)? prevType.length : 0;
-        let oldT: string = prevType + Lexer.padParts(prevTypeLength) +  prevToken + '_';
-        return oldT;
-    }
-
-    private static padColumns(padLength: number): string {
-        let padding = '';
-        for (let i = 0;  i < 50 - padLength; i++) {
-            padding += ' ';
-        }
-        return padding;
-    }
-
-    private static padParts(padLength: number): string {
-        let padding = '';
-        for (let i = 0;  i < 16 - padLength; i++) {
-            padding += ' ';
-        }
-        return padding;
-    }
-
-    private static debugHeading() {
-        let cachedT: string = 'Cached Real Token';
-        let newT: string =  'New Token';
-        let oldT: string = 'New Real Token';
-        let paddingCached: string = Lexer.padColumns(cachedT.length);
-        let padding: string = Lexer.padColumns(newT.length);
-        console.log('===============================================================================================================');
-        console.log(cachedT + paddingCached + newT);
-        console.log('===============================================================================================================');
     }
 
     private static testChar(existingState: CharLevelState, isFirstChar: boolean, char: string, nextChar: string, nesting: number) {

@@ -1,4 +1,5 @@
-import { Lexer, CharLevelState, Token } from "./Lexer";
+import { Lexer, Token } from "./Lexer";
+import { Debug } from "./Debug";
 
 let xpath1 = "pp(:(:q:)z:)rr'ss''mm'tt";
 let xpath2 = "pp'qq''rr'ss";
@@ -40,7 +41,7 @@ tokens.forEach(showTokens);
 
 function showTokens(token: Token) {
     let err = (token.error)? ' error' : '';
-    console.log('#' + token.value + '# ' + Lexer.charStateToString(token.charType) + ',' + Lexer.tokenStateToString(token.tokenType) + err) 
+    console.log('#' + token.value + '# ' + Debug.charStateToString(token.charType) + ',' + Debug.tokenStateToString(token.tokenType) + err) 
     if (token.children) {
         console.log('--- children-start---');
         token.children.forEach(showTokens);
