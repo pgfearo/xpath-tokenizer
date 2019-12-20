@@ -89,6 +89,9 @@ var Debug = (function () {
             case Lexer_1.TokenLevelState.NodeType:
                 r = "NodeType";
                 break;
+            case Lexer_1.TokenLevelState.SimpleType:
+                r = "SimpleType";
+                break;
             case Lexer_1.TokenLevelState.Operator:
                 r = "Operator";
                 break;

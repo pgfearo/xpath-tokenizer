@@ -34,6 +34,7 @@ export enum TokenLevelState {
     Unset,
     Operator,
     NodeType,
+    SimpleType,
     Axis,
     Name,
     Declaration,
@@ -76,7 +77,7 @@ export class Lexer {
         switch (firstPart) {
             case "cast":
             case "castable":
-                result = secondPart === "of";
+                result = secondPart === "as";
                 break;
             case "instance":
                 result = secondPart === "of";
@@ -328,7 +329,7 @@ export class Lexer {
                     if (this.debug) {
                         console.log("end-token: [" + token + "]" + ' type: ' + Debug.charStateToString(currentLabelState));
                     }
-                    result.push(new BasicToken(token, currentLabelState));
+                    this.updateResult(nestedTokenStack, result, new BasicToken(token, currentLabelState));
                 }
                 currentState = nextState;
                 prevRealToken = this.latestRealToken;
@@ -388,9 +389,9 @@ export class Lexer {
         let prevToken = this.latestRealToken;
         if (prevToken) {
             let lastState: CharLevelState = prevToken.charType;
-            if (prevToken.tokenType) {
+            if (!Lexer.isTokenTypeUnset(prevToken)) {
                 // do nothing as it's already been set
-            } else if (prevToken.charType.valueOf() === CharLevelState.lName.valueOf()) {
+            } else if (Lexer.isCharTypeEqual(prevToken, CharLevelState.lName)) {
                 // prev tokens was a name so it may need resetting
                 switch (currentState) {
                     case CharLevelState.lVar:
@@ -441,27 +442,30 @@ export class Lexer {
                 // a Name cannot follow a Name -- unless it's like 'instance of'
                 switch (prevToken.charType) {
                     case CharLevelState.lName:
-                        if (Data.secondParts.indexOf(currentValue) > -1
-                            && Lexer.isPartOperator(prevToken.value, currentValue)) {
+                        if (Data.secondParts.indexOf(currentValue) > -1 && Lexer.isPartOperator(prevToken.value, currentValue)) {
                             // castable as etc.
                             prevToken.tokenType = TokenLevelState.Operator;
                             currentToken.tokenType = TokenLevelState.Operator;                               
-                        } else if (prevToken.charType.valueOf() === CharLevelState.sep.valueOf() ||
-                                   prevToken.charType.valueOf() === CharLevelState.dSep.valueOf()) {
-                                       currentToken.tokenType = TokenLevelState.Name;
-                        } else if (!(prevToken.tokenType) && Data.keywords.indexOf(currentValue) > -1) {
+                        } else if (Lexer.isTokenTypeEqual(prevToken, TokenLevelState.Operator)) {
+                            // don't set to name because it may be a function etc.
+                            //currentToken.tokenType = TokenLevelState.Name;
+                        } else if ((Lexer.isTokenTypeUnset(prevToken) || Lexer.isTokenTypeAType(prevToken)) 
+                                  && Data.keywords.indexOf(currentValue) > -1) {
                             currentToken.tokenType = TokenLevelState.Operator;
                         }
                     default:
-                        if ((prevToken.tokenType.valueOf() === TokenLevelState.Unset.valueOf()) 
+                        if (Lexer.isTokenTypeUnset(prevToken)
                              && Data.keywords.indexOf(currentValue) > -1) {
                             currentToken.tokenType = TokenLevelState.Operator;
+                        } else if (Lexer.isTokenTypeEqual(prevToken, TokenLevelState.Operator) && 
+                            (prevToken.value === 'as' || prevToken.value === 'of')) {
+                            currentToken.tokenType = TokenLevelState.SimpleType;
                         }
                         break;
                 }
                 break;
             case CharLevelState.dSep:
-            case CharLevelState.dSep2:
+            case CharLevelState.sep:
                 currentToken.tokenType = TokenLevelState.Operator; 
                 break;
         }
@@ -560,6 +564,23 @@ export class Lexer {
 
     private static isDigit(charCode: number) {
         return charCode > 47 && charCode < 58;
+    }
+
+    private static isCharTypeEqual(token: Token, type2: CharLevelState): boolean {
+        return token.charType.valueOf() === type2.valueOf();
+    }
+
+    private static isTokenTypeEqual(token: Token, type2: TokenLevelState): boolean {
+        return token.tokenType.valueOf() === type2.valueOf();
+    }
+
+    private static isTokenTypeAType(token: Token): boolean {
+        return token.tokenType.valueOf() === TokenLevelState.SimpleType.valueOf() ||
+                token.tokenType.valueOf() === TokenLevelState.NodeType.valueOf();
+    }
+
+    private static isTokenTypeUnset(token: Token): boolean {
+        return token.tokenType.valueOf() === TokenLevelState.Unset.valueOf();
     }
 }
 

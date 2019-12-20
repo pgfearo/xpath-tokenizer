@@ -95,6 +95,9 @@ export class Debug {
             case TokenLevelState.NodeType:
                 r = "NodeType";
                 break;
+            case TokenLevelState.SimpleType:
+                r = "SimpleType";
+                break;
             case TokenLevelState.Operator:
                 r = "Operator";
                 break;
