@@ -31,6 +31,7 @@ export enum CharLevelState {
 }
 
 export enum TokenLevelState {
+    Unset,
     Operator,
     NodeType,
     Axis,
@@ -227,14 +228,14 @@ export class Lexer {
                         case CharLevelState.dSep:
                             this.update(nestedTokenStack, result, tokenChars, currentLabelState);
                             let bothChars = currentChar + nextChar;
-                            this.updateResult(nestedTokenStack, result, {value: bothChars , charType: nextLabelState});
+                            this.updateResult(nestedTokenStack, result, new BasicToken(bothChars, nextLabelState));
                             tokenChars = [];
                             break;
                         case CharLevelState.dSep2:
                             break;
                         case CharLevelState.sep:
                             this.update(nestedTokenStack, result, tokenChars, currentLabelState);
-                            this.updateResult(nestedTokenStack, result, {value: currentChar, charType: nextLabelState});
+                            this.updateResult(nestedTokenStack, result, new BasicToken(currentChar, nextLabelState));
                             tokenChars = [];
                             break;
                         case CharLevelState.escSq:
@@ -261,9 +262,9 @@ export class Lexer {
                         case CharLevelState.rBr:
                         case CharLevelState.rPr:
                             if (currentLabelState !== CharLevelState.rC) {
-                                let prevToken: Token = {value: tokenChars.join(''), charType: currentLabelState};
+                                let prevToken: Token = new BasicToken(tokenChars.join(''), currentLabelState);
                                 this.updateResult(nestedTokenStack, result, prevToken);
-                                let newToken: Token = {value: currentChar, charType: nextLabelState};
+                                let newToken: Token = new BasicToken(currentChar, nextLabelState);
                                 if (nestedTokenStack.length > 0) {
                                     // remove from nesting level
                                     if (Lexer.closeMatchesOpen(nextLabelState, nestedTokenStack)) {
@@ -319,7 +320,7 @@ export class Lexer {
                         if (this.debugState) {
                             console.log('[' + token + ']' + ' type: ' + Debug.charStateToString(currentLabelState));
                         }
-                        this.updateResult(nestedTokenStack, result, {value: token, charType: currentLabelState});
+                        this.updateResult(nestedTokenStack, result, new BasicToken(token, currentLabelState));
                     }
                 }
                 if (!nextChar && tokenChars.length > 0) {
@@ -327,9 +328,8 @@ export class Lexer {
                     if (this.debug) {
                         console.log("end-token: [" + token + "]" + ' type: ' + Debug.charStateToString(currentLabelState));
                     }
-                    result.push({value: token, charType: currentLabelState});
+                    result.push(new BasicToken(token, currentLabelState));
                 }
-                // console.log('=======================================');
                 currentState = nextState;
                 prevRealToken = this.latestRealToken;
             } // end if(currentChar)
@@ -360,7 +360,7 @@ export class Lexer {
     *   3. If the new token is 'real' then set the latestRealToken to the new token
     */
     private update(stack: Token[], result: Token[], tokenChars: string[], charState: CharLevelState) {
-        this.updateResult(stack, result, {value: tokenChars.join(''), charType: charState} );
+        this.updateResult(stack, result, {value: tokenChars.join(''), charType: charState, tokenType: TokenLevelState.Unset} );
     }
 
     private updateResult(stack: Token[], result: Token[], newValue: Token) {
@@ -428,6 +428,7 @@ export class Lexer {
         let prevToken = this.latestRealToken;
         if (!(prevToken)) {
             prevToken = new BasicToken(',', CharLevelState.sep);
+            prevToken.tokenType = TokenLevelState.Operator;
         }
         let currentValue = currentToken.value;
 
@@ -441,20 +442,21 @@ export class Lexer {
                 switch (prevToken.charType) {
                     case CharLevelState.lName:
                         if (Data.secondParts.indexOf(currentValue) > -1
-                        && Lexer.isPartOperator(prevToken.value, currentValue)) {
+                            && Lexer.isPartOperator(prevToken.value, currentValue)) {
                             // castable as etc.
                             prevToken.tokenType = TokenLevelState.Operator;
                             currentToken.tokenType = TokenLevelState.Operator;                               
                         } else if (prevToken.charType.valueOf() === CharLevelState.sep.valueOf() ||
                                    prevToken.charType.valueOf() === CharLevelState.dSep.valueOf()) {
                                        currentToken.tokenType = TokenLevelState.Name;
+                        } else if (!(prevToken.tokenType) && Data.keywords.indexOf(currentValue) > -1) {
+                            currentToken.tokenType = TokenLevelState.Operator;
                         }
-                        break;
-                    case CharLevelState.rB:
-                        // prev was ')' so this name must be an operator of some kind
-                        // options: as, then, is, instance of, castable as, occurrence-indicator ?, *, +
-                        // or any separator
-                        currentToken.tokenType = TokenLevelState.Operator;
+                    default:
+                        if ((prevToken.tokenType.valueOf() === TokenLevelState.Unset.valueOf()) 
+                             && Data.keywords.indexOf(currentValue) > -1) {
+                            currentToken.tokenType = TokenLevelState.Operator;
+                        }
                         break;
                 }
                 break;
@@ -462,9 +464,7 @@ export class Lexer {
             case CharLevelState.dSep2:
                 currentToken.tokenType = TokenLevelState.Operator; 
                 break;
-
         }
-
     }
 
     private static testChar(existingState: CharLevelState, isFirstChar: boolean, char: string, nextChar: string, nesting: number) {
@@ -563,12 +563,10 @@ export class Lexer {
     }
 }
 
-
-
 export interface Token {
     value: string,
     charType: CharLevelState;
-    tokenType?: TokenLevelState;
+    tokenType: TokenLevelState;
     children?: Token[];
     error?: boolean;
 }
@@ -576,10 +574,12 @@ export interface Token {
 class BasicToken implements Token {
     value: string;
     charType: CharLevelState;
+    tokenType: TokenLevelState;
 
     constructor(value: string, type: CharLevelState) {
         this.value = value;
         this.charType = type;
+        this.tokenType = TokenLevelState.Unset;
     }
 }
 
@@ -587,10 +587,12 @@ class ContainerToken implements Token {
     value: string;
     charType: CharLevelState;
     children: Token[];
+    tokenType: TokenLevelState;
 
     constructor(value: string, type: CharLevelState) {
         this.children = [];
         this.value = value;
         this.charType = type;
+        this.tokenType = TokenLevelState.Unset;
     }
 }
