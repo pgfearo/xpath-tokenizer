@@ -1,6 +1,7 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 var Lexer_1 = require("./Lexer");
-var Debug = (function () {
+var Debug = /** @class */ (function () {
     function Debug() {
     }
     Debug.printDebugOutput = function (latestRealToken, cachedRealToken, newValue) {
@@ -12,6 +13,7 @@ var Debug = (function () {
             var cachedTpadding = this.padColumns(cachedRealTokenString.length);
             var newTpadding = this.padColumns(newT.length);
             if (newValue.charType === Lexer_1.CharLevelState.lWs && !(showWhitespace)) {
+                // show nothing
             }
             else {
                 console.log(cachedRealTokenString + cachedTpadding + newT);
