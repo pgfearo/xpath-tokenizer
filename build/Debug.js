@@ -4,6 +4,9 @@ var Lexer_1 = require("./Lexer");
 var Debug = /** @class */ (function () {
     function Debug() {
     }
+    Debug.printResultTokens = function (tokens) {
+        tokens.forEach(Debug.showTokens);
+    };
     Debug.printDebugOutput = function (latestRealToken, cachedRealToken, newValue) {
         if (newValue.value !== '') {
             var showWhitespace = false;
@@ -48,6 +51,16 @@ var Debug = /** @class */ (function () {
         var prevTypeLength = (prevType) ? prevType.length : 0;
         var oldT = prevType + this.padParts(prevTypeLength) + prevToken + '_';
         return oldT;
+    };
+    Debug.padString = function (text) {
+        return text + this.padParts(text.length);
+    };
+    Debug.padStringDots = function (padLength) {
+        var padding = '';
+        for (var i = 0; i < 16 - padLength; i++) {
+            padding += '.';
+        }
+        return padding;
     };
     Debug.padColumns = function (padLength) {
         var padding = '';
@@ -208,6 +221,17 @@ var Debug = /** @class */ (function () {
                 break;
         }
         return result;
+    };
+    Debug.showTokens = function (token) {
+        var err = (token.error) ? ' error' : '';
+        var tokenValue = token.value + '';
+        var charState = Debug.charStateToString(token.charType);
+        console.log(Debug.padString(tokenValue) + Debug.padString(charState) + Debug.tokenStateToString(token.tokenType) + err);
+        if (token.children) {
+            console.log('--- children-start---');
+            token.children.forEach(Debug.showTokens);
+            console.log('--- children-end ----');
+        }
     };
     return Debug;
 }());

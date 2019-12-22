@@ -36,18 +36,10 @@ let lexer: Lexer = new Lexer();
 
 
 let tokens: Token[] = lexer.analyse(testXpath);
+
 console.log('*************');
 console.log(testXpath);
 console.log('*************');
+Debug.printResultTokens(tokens);
 
-tokens.forEach(showTokens);
 
-function showTokens(token: Token) {
-    let err = (token.error)? ' error' : '';
-    console.log('#' + token.value + '# ' + Debug.charStateToString(token.charType) + ',' + Debug.tokenStateToString(token.tokenType) + err) 
-    if (token.children) {
-        console.log('--- children-start---');
-        token.children.forEach(showTokens);
-        console.log('--- children-end ----');
-    }
-}

@@ -2,6 +2,23 @@ import {CharLevelState, TokenLevelState, Token} from "./Lexer";
 
 export class Debug {
 
+    public static printResultTokens(tokens: Token[]) {
+        tokens.forEach(Debug.showTokens);
+    }
+
+
+    private static showTokens = function(token: Token) {
+        let err = (token.error)? ' error' : '';
+        let tokenValue = token.value + '';
+        let charState: string = Debug.charStateToString(token.charType);
+        console.log(Debug.padString(tokenValue) + Debug.padString(charState) + Debug.tokenStateToString(token.tokenType) + err) 
+        if (token.children) {
+            console.log('--- children-start---');
+            token.children.forEach(Debug.showTokens);
+            console.log('--- children-end ----');
+        }
+    }
+
     public static printDebugOutput(latestRealToken: Token, cachedRealToken: Token, newValue: Token) {
         if (newValue.value !== '') {
             let showWhitespace = false;
@@ -47,6 +64,18 @@ export class Debug {
         let prevTypeLength = (prevType)? prevType.length : 0;
         let oldT: string = prevType + this.padParts(prevTypeLength) +  prevToken + '_';
         return oldT;
+    }
+
+    private static padString(text: string): string {
+        return text + this.padParts(text.length);
+    }
+
+    private static padStringDots(padLength: number): string {
+        let padding = '';
+        for (let i = 0;  i < 16 - padLength; i++) {
+            padding += '.';
+        }
+        return padding;
     }
 
     private static padColumns(padLength: number): string {
