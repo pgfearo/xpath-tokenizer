@@ -80,6 +80,21 @@ export class Debug {
         let r: string = undefined;
 
         switch (resolvedState) {
+            case TokenLevelState.Attribute:
+                r = "Attribute";
+                break;
+            case TokenLevelState.Number:
+                r = "Number";
+                break;
+            case TokenLevelState.Variable:
+                r = "Variable";
+                break;
+            case TokenLevelState.Whitespace:
+                r = "Whitespace";
+                break;
+            case TokenLevelState.String:
+                r = "String";
+                break;
             case TokenLevelState.Axis:
                 r = "Axis";
                 break;
@@ -101,9 +116,8 @@ export class Debug {
             case TokenLevelState.Operator:
                 r = "Operator";
                 break;
-            case TokenLevelState.If:
-                r = "If";
-                break;
+            case TokenLevelState.Unset:
+                r = "Unset";
             default:
                 r = "";
         }
@@ -124,13 +138,16 @@ export class Debug {
                 result = "rB";
                 break;
             case CharLevelState.lC:
-                result = "Comment";
+                result = "lC";
                 break;
             case CharLevelState.rC:
                 result = "rC";
                 break;
             case CharLevelState.lSq:
-                result = "StringLiteral";
+                result = "lSq";
+                break;
+            case CharLevelState.lDq:
+                result = "lDq";
                 break;
             case CharLevelState.rSq:
                 result = "rSq";
@@ -148,7 +165,7 @@ export class Debug {
                 result = "rBr";
                 break;
             case CharLevelState.lWs:
-                result = "Whitespace";
+                result = "lWs";
                 break;
             case CharLevelState.lPr:
                 result = "lPr";
@@ -172,28 +189,28 @@ export class Debug {
                 result = "dSep2";
                 break;
             case CharLevelState.lUri:
-                result = "URILiteral";
+                result = "lUri";
                 break;
             case CharLevelState.rUri:
                 result = "rUri";
                 break;
             case CharLevelState.lNl:
-                result = "NumericLiteral";
+                result = "lNl";
                 break;
             case CharLevelState.rNl:
                 result = "rNl";
                 break;
             case CharLevelState.lVar:
-                result = "Variable";
+                result = "lVar";
                 break;
             case CharLevelState.exp:
-                result = "Exponent";
+                result = "exp";
                 break;
             case CharLevelState.lName:
                 result = "lName";
                 break;
             case CharLevelState.lAttr:
-                result = "Attribute";
+                result = "lAttr";
                 break;
          }
         return result;

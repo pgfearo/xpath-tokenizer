@@ -76,6 +76,21 @@ var Debug = /** @class */ (function () {
     Debug.tokenStateToString = function (resolvedState) {
         var r = undefined;
         switch (resolvedState) {
+            case Lexer_1.TokenLevelState.Attribute:
+                r = "Attribute";
+                break;
+            case Lexer_1.TokenLevelState.Number:
+                r = "Number";
+                break;
+            case Lexer_1.TokenLevelState.Variable:
+                r = "Variable";
+                break;
+            case Lexer_1.TokenLevelState.Whitespace:
+                r = "Whitespace";
+                break;
+            case Lexer_1.TokenLevelState.String:
+                r = "String";
+                break;
             case Lexer_1.TokenLevelState.Axis:
                 r = "Axis";
                 break;
@@ -97,9 +112,8 @@ var Debug = /** @class */ (function () {
             case Lexer_1.TokenLevelState.Operator:
                 r = "Operator";
                 break;
-            case Lexer_1.TokenLevelState.If:
-                r = "If";
-                break;
+            case Lexer_1.TokenLevelState.Unset:
+                r = "Unset";
             default:
                 r = "";
         }
@@ -118,13 +132,16 @@ var Debug = /** @class */ (function () {
                 result = "rB";
                 break;
             case Lexer_1.CharLevelState.lC:
-                result = "Comment";
+                result = "lC";
                 break;
             case Lexer_1.CharLevelState.rC:
                 result = "rC";
                 break;
             case Lexer_1.CharLevelState.lSq:
-                result = "StringLiteral";
+                result = "lSq";
+                break;
+            case Lexer_1.CharLevelState.lDq:
+                result = "lDq";
                 break;
             case Lexer_1.CharLevelState.rSq:
                 result = "rSq";
@@ -142,7 +159,7 @@ var Debug = /** @class */ (function () {
                 result = "rBr";
                 break;
             case Lexer_1.CharLevelState.lWs:
-                result = "Whitespace";
+                result = "lWs";
                 break;
             case Lexer_1.CharLevelState.lPr:
                 result = "lPr";
@@ -166,28 +183,28 @@ var Debug = /** @class */ (function () {
                 result = "dSep2";
                 break;
             case Lexer_1.CharLevelState.lUri:
-                result = "URILiteral";
+                result = "lUri";
                 break;
             case Lexer_1.CharLevelState.rUri:
                 result = "rUri";
                 break;
             case Lexer_1.CharLevelState.lNl:
-                result = "NumericLiteral";
+                result = "lNl";
                 break;
             case Lexer_1.CharLevelState.rNl:
                 result = "rNl";
                 break;
             case Lexer_1.CharLevelState.lVar:
-                result = "Variable";
+                result = "lVar";
                 break;
             case Lexer_1.CharLevelState.exp:
-                result = "Exponent";
+                result = "exp";
                 break;
             case Lexer_1.CharLevelState.lName:
                 result = "lName";
                 break;
             case Lexer_1.CharLevelState.lAttr:
-                result = "Attribute";
+                result = "lAttr";
                 break;
         }
         return result;

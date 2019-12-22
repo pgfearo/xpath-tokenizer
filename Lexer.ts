@@ -31,15 +31,19 @@ export enum CharLevelState {
 }
 
 export enum TokenLevelState {
+    Attribute,
+    Number,
     Unset,
     Operator,
+    Variable,
+    Whitespace,
+    String,
     NodeType,
     SimpleType,
     Axis,
     Name,
     Declaration,
     Function,
-    If,
 }
 
 export class Data {
@@ -421,7 +425,7 @@ export class Lexer {
                         break;
                     case CharLevelState.lB:
                         if (prevToken.value === 'if') {
-                            prevToken.tokenType = TokenLevelState.If;
+                            prevToken.tokenType = TokenLevelState.Operator;
                         } else if (Data.nodeTypes.indexOf(prevToken.value) > -1) {
                             prevToken.tokenType = TokenLevelState.NodeType;
                         } else {
@@ -462,9 +466,6 @@ export class Lexer {
         let currentValue = currentToken.value;
 
         switch (currentToken.charType) {
-            case CharLevelState.dSep:
-                currentToken.tokenType = TokenLevelState.Operator;
-                break;
             case CharLevelState.lName:
                 // token is a 'name' that needs resolving:
                 // a Name cannot follow a Name -- unless it's like 'instance of'
@@ -495,10 +496,6 @@ export class Lexer {
                         }
                         break;
                 }
-                break;
-            case CharLevelState.dSep:
-            case CharLevelState.sep:
-                currentToken.tokenType = TokenLevelState.Operator; 
                 break;
         }
     }
@@ -632,7 +629,30 @@ class BasicToken implements Token {
     constructor(value: string, type: CharLevelState) {
         this.value = value;
         this.charType = type;
-        this.tokenType = TokenLevelState.Unset;
+        switch (type) {
+            case CharLevelState.dSep:
+            case CharLevelState.sep:
+                this.tokenType = TokenLevelState.Operator;
+                break;
+            case CharLevelState.lAttr:
+                this.tokenType = TokenLevelState.Attribute;
+                break;
+            case CharLevelState.lNl:
+                this.tokenType = TokenLevelState.Number;
+                break;
+            case CharLevelState.lVar:
+                this.tokenType = TokenLevelState.Variable;
+                break;
+            case CharLevelState.lSq:
+            case CharLevelState.lDq:
+                this.tokenType = TokenLevelState.String;
+                break;
+            case CharLevelState.lWs:
+                this.tokenType = TokenLevelState.Number;
+            default:
+                this.tokenType = TokenLevelState.Unset;
+                break;
+        }
     }
 }
 

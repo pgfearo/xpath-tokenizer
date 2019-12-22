@@ -20,7 +20,7 @@ else if ($exclude/@end)
    $exclude/@end cast as xs:integer + 1
 else ()`;
 let xpath13 = `let $increment := function($x as xs:integer) as xs:integer* {
-	if ($x lt 10) then
+	if ($x lt 10 and 'a' eq $y) then
 	$x + 1, $fnb[22](24), $fna(28)
 	else
 	$x + 2, Q{http://example.com}div
@@ -30,7 +30,7 @@ let xpath14 = `array [1,2,3], map {5:25, 8:28}`;
 
 let lexer: Lexer = new Lexer();
 
-let testXpath = xpath14;
+let testXpath = xpath13;
 
 let tokens: Token[] = lexer.analyse(testXpath);
 console.log('*************');
