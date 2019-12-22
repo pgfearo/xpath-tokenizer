@@ -55,19 +55,25 @@ export class Data {
                             "following", "following-sibling", "namespace", "parent", "preceding", "preceding-sibling", "self"];
 
     public static nodeTypes = [ "attribute", 
-                                "comment", "document-node", "attribute", "element", "empty-sequence", "item", "namespace-node", "node", 
+                                "comment", "document-node", "element", "empty-sequence", "item", "namespace-node", "node", 
                                 "processing-instruction", 
                                 "schema-attribute", "schema-element", "text"];                        
 
-    public static keywords = [ "and", "array", "div", 
+    public static keywords = [ "and", "array", "as", "div", 
                                 "else", "eq", "except",
                                 "function", "ge", "gt", "idiv", "if", "in", "intersect", "is", "le",
-                                "lt", "map", "mod", "ne", "or", "return", "satisfies",
+                                "lt", "map", "mod", "ne", "of", "or", "return", "satisfies",
                                 "then", "to", "treat", "union"];
 
     public static rangeVars = ["every", "for", "let", "some"]
     public static firstParts = [ "cast", "castable", "instance"];
     public static secondParts = ["as", "of"];
+
+    public static setAsOperatorIfKeyword(token: Token) {
+        if (Data.keywords.indexOf(token.value) > -1) {
+            token.tokenType = TokenLevelState.Operator;
+        }
+    }
 }
 
 export class Lexer {
@@ -452,6 +458,7 @@ export class Lexer {
                         if (prevToken.value === 'map' || prevToken.value === 'array') {
                             prevToken.tokenType = TokenLevelState.Operator;
                         }
+                        break;
                 }
             }
         }
@@ -471,6 +478,7 @@ export class Lexer {
                 // a Name cannot follow a Name -- unless it's like 'instance of'
                 switch (prevToken.charType) {
                     case CharLevelState.lName:
+                        // previous token was lName and current token is lName
                         if (Data.secondParts.indexOf(currentValue) > -1 && Lexer.isPartOperator(prevToken.value, currentValue)) {
                             // castable as etc.
                             prevToken.tokenType = TokenLevelState.Operator;
@@ -478,11 +486,39 @@ export class Lexer {
                         } else if (Lexer.isTokenTypeEqual(prevToken, TokenLevelState.Operator)) {
                             // don't set to name because it may be a function etc.
                             //currentToken.tokenType = TokenLevelState.Name;
-                        } else if ((Lexer.isTokenTypeUnset(prevToken) || Lexer.isTokenTypeAType(prevToken)) 
-                                  && Data.keywords.indexOf(currentValue) > -1) {
-                            currentToken.tokenType = TokenLevelState.Operator;
+                            if (prevToken.value === 'as' || prevToken.value === 'of') {
+                                // e.g. castable as xs:integer
+                                // TODO: check if value equals xs:integer or element?
+                                currentToken.tokenType = TokenLevelState.SimpleType;
+                                  }
+                        } else if (Lexer.isTokenTypeUnset(prevToken) || Lexer.isTokenTypeAType(prevToken)) {
+                            Data.setAsOperatorIfKeyword(currentToken);
+                        } 
+                        break;
+                    case CharLevelState.rB:
+                    case CharLevelState.rBr:
+                    case CharLevelState.rPr:
+                    case CharLevelState.lAttr:
+                    case CharLevelState.lNl:
+                    case CharLevelState.lUri:
+                    case CharLevelState.lVar:
+                    case CharLevelState.lSq:
+                    case CharLevelState.lDq:
+                        // operator must follow brackets, brace or predicate
+                        Data.setAsOperatorIfKeyword(currentToken);
+                        break;
+                    case CharLevelState.sep:
+                        // operator can't follow a separator so don't set
+                        break;
+                    case CharLevelState.dSep:
+                        //  current token is an lName but previous token was an operator
+                        //  current token therefore can't be an operator
+                        if (prevToken.value === '()') {
+                            Data.setAsOperatorIfKeyword(currentToken);
                         }
-                    default:
+                        break;
+                    default: // current token is an lName but previous token was not
+
                         if (Lexer.isTokenTypeUnset(prevToken)
                              && Data.keywords.indexOf(currentValue) > -1) {
                             currentToken.tokenType = TokenLevelState.Operator;

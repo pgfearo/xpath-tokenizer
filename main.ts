@@ -26,11 +26,14 @@ let xpath13 = `let $increment := function($x as xs:integer) as xs:integer* {
 	$x + 2, Q{http://example.com}div
 } return books/book/@title + $test`;
 // tests
-let xpath14 = `array [1,2,3], map {5:25, 8:28}`;
+let xpath14 = `$a and 'a' and 23 and true() and function() and array[1] and $var and 5 + and and`;
+let xpath15 = `$a castable as xs:integer and $b instance of element()`;
+
+
+let testXpath = xpath15;
 
 let lexer: Lexer = new Lexer();
 
-let testXpath = xpath13;
 
 let tokens: Token[] = lexer.analyse(testXpath);
 console.log('*************');
