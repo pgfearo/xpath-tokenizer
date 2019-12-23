@@ -490,7 +490,7 @@ export class Lexer {
                                 // e.g. castable as xs:integer
                                 // TODO: check if value equals xs:integer or element?
                                 currentToken.tokenType = TokenLevelState.SimpleType;
-                                  }
+                            }
                         } else if (Lexer.isTokenTypeUnset(prevToken) || Lexer.isTokenTypeAType(prevToken)) {
                             Data.setAsOperatorIfKeyword(currentToken);
                         } 
@@ -504,16 +504,15 @@ export class Lexer {
                     case CharLevelState.lVar:
                     case CharLevelState.lSq:
                     case CharLevelState.lDq:
-                        // operator must follow brackets, brace or predicate
                         Data.setAsOperatorIfKeyword(currentToken);
                         break;
                     case CharLevelState.sep:
-                        // operator can't follow a separator so don't set
+                        if (prevToken.value === '.') {
+                            Data.setAsOperatorIfKeyword(currentToken);
+                        }
                         break;
                     case CharLevelState.dSep:
-                        //  current token is an lName but previous token was an operator
-                        //  current token therefore can't be an operator
-                        if (prevToken.value === '()') {
+                        if (prevToken.value === '()' || prevToken.value === '..') {
                             Data.setAsOperatorIfKeyword(currentToken);
                         }
                         break;
