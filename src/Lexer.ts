@@ -685,6 +685,7 @@ class BasicToken implements Token {
                 break;
             case CharLevelState.lWs:
                 this.tokenType = TokenLevelState.Number;
+                break;
             default:
                 this.tokenType = TokenLevelState.Unset;
                 break;
