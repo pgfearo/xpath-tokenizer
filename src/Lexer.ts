@@ -233,7 +233,6 @@ export class Lexer {
                         case CharLevelState.lVar:
                         case CharLevelState.lName:
                             this.update(nestedTokenStack, result, tokenChars, currentLabelState);
-                            tokenChars = [];
                             tokenChars.push(currentChar);
                             break;
                         case CharLevelState.exp:
@@ -243,14 +242,12 @@ export class Lexer {
                             this.update(nestedTokenStack, result, tokenChars, currentLabelState);
                             let bothChars = currentChar + nextChar;
                             this.updateResult(nestedTokenStack, result, new BasicToken(bothChars, nextLabelState));
-                            tokenChars = [];
                             break;
                         case CharLevelState.dSep2:
                             break;
                         case CharLevelState.sep:
                             this.update(nestedTokenStack, result, tokenChars, currentLabelState);
                             this.updateResult(nestedTokenStack, result, new BasicToken(currentChar, nextLabelState));
-                            tokenChars = [];
                             break;
                         case CharLevelState.escSq:
                         case CharLevelState.escDq:
@@ -265,7 +262,6 @@ export class Lexer {
                         case CharLevelState.lBr:
                         case CharLevelState.lPr:
                             this.update(nestedTokenStack, result, tokenChars, currentLabelState);
-                            tokenChars = [];
                             let currentToken: ContainerToken = new ContainerToken(currentChar, nextLabelState);
                             this.updateResult(nestedTokenStack, result, currentToken);
                             // add to nesting level
@@ -368,13 +364,9 @@ export class Lexer {
         return result;
     }
 
-    /*
-    *   1. If stack has any tokens on it, add the new token as a child to the top item on the stack
-    *   2. If stack is empty add the new token to the array of result tokens
-    *   3. If the new token is 'real' then set the latestRealToken to the new token
-    */
     private update(stack: Token[], result: Token[], tokenChars: string[], charState: CharLevelState) {
         this.updateResult(stack, result, {value: tokenChars.join(''), charType: charState, tokenType: TokenLevelState.Unset} );
+        tokenChars.length = 0;
     }
 
     private unChangedStateSignificant(charState: CharLevelState): boolean {
