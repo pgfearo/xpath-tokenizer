@@ -28,7 +28,7 @@ let xpath13 = `let $increment := function($x as xs:integer) as xs:integer* {
 // tests
 let xpath14 = `$a and 'a' and 23 and true() and function() and array[1] and $var and 5 + and and`;
 let xpath15 = `$a castable as xs:integer and $b instance of element()`;
-let xpath16 = `. union .. union and`;
+let xpath16 = `'present' and and union $a`;
 
 
 let testXpath = xpath16;

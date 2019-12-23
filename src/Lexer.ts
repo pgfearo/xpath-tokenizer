@@ -409,11 +409,7 @@ export class Lexer {
         let currentState = currentToken.charType
         let prevToken = this.latestRealToken;
         if (prevToken) {
-            let lastState: CharLevelState = prevToken.charType;
-            if (!Lexer.isTokenTypeUnset(prevToken)) {
-                // do nothing as it's already been set
-            } else if (Lexer.isCharTypeEqual(prevToken, CharLevelState.lName)) {
-                // prev tokens was a name so it may need resetting
+            if (Lexer.isCharTypeEqual(prevToken, CharLevelState.lName)) {
                 switch (currentState) {
                     case CharLevelState.lVar:
                         if (Data.rangeVars.indexOf(prevToken.value) > -1) {
@@ -483,7 +479,7 @@ export class Lexer {
                                 // TODO: check if value equals xs:integer or element?
                                 currentToken.tokenType = TokenLevelState.SimpleType;
                             }
-                        } else if (Lexer.isTokenTypeUnset(prevToken) || Lexer.isTokenTypeAType(prevToken)) {
+                        } else if (Lexer.isTokenTypeEqual(prevToken, TokenLevelState.Name) || Lexer.isTokenTypeAType(prevToken)) {
                             Data.setAsOperatorIfKeyword(currentToken);
                         } 
                         break;
@@ -657,6 +653,12 @@ class BasicToken implements Token {
         this.value = value;
         this.charType = type;
         switch (type) {
+            case CharLevelState.lWs:
+                this.tokenType = TokenLevelState.Whitespace;
+                break;
+            case CharLevelState.lName:
+                this.tokenType = TokenLevelState.Name;
+                break;
             case CharLevelState.dSep:
             case CharLevelState.sep:
                 this.tokenType = TokenLevelState.Operator;
@@ -673,9 +675,6 @@ class BasicToken implements Token {
             case CharLevelState.lSq:
             case CharLevelState.lDq:
                 this.tokenType = TokenLevelState.String;
-                break;
-            case CharLevelState.lWs:
-                this.tokenType = TokenLevelState.Number;
                 break;
             default:
                 this.tokenType = TokenLevelState.Unset;
