@@ -1,20 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var Lexer_1 = require("./Lexer");
-var Debug = /** @class */ (function () {
-    function Debug() {
-    }
-    Debug.printResultTokens = function (tokens) {
+const Lexer_1 = require("./Lexer");
+class Debug {
+    static printResultTokens(tokens) {
         tokens.forEach(Debug.showTokens);
-    };
-    Debug.printDebugOutput = function (latestRealToken, cachedRealToken, newValue) {
+    }
+    static printDebugOutput(latestRealToken, cachedRealToken, newValue) {
         if (newValue.value !== '') {
-            var showWhitespace = false;
-            var nextRealToken = this.getTokenDebugString(latestRealToken);
-            var cachedRealTokenString = this.getTokenDebugString(cachedRealToken);
-            var newT = this.getTokenDebugString(newValue);
-            var cachedTpadding = this.padColumns(cachedRealTokenString.length);
-            var newTpadding = this.padColumns(newT.length);
+            let showWhitespace = false;
+            let nextRealToken = this.getTokenDebugString(latestRealToken);
+            let cachedRealTokenString = this.getTokenDebugString(cachedRealToken);
+            let newT = this.getTokenDebugString(newValue);
+            let cachedTpadding = this.padColumns(cachedRealTokenString.length);
+            let newTpadding = this.padColumns(newT.length);
             if (newValue.charType === Lexer_1.CharLevelState.lWs && !(showWhitespace)) {
                 // show nothing
             }
@@ -22,11 +20,11 @@ var Debug = /** @class */ (function () {
                 console.log(cachedRealTokenString + cachedTpadding + newT);
             }
         }
-    };
-    Debug.printStateOuput = function (prevRealToken, currentLabelState, nextLabelState, token) {
+    }
+    static printStateOuput(prevRealToken, currentLabelState, nextLabelState, token) {
         console.log('============STATE CHANGE ===========================');
-        var prevType;
-        var prevToken = '';
+        let prevType;
+        let prevToken = '';
         if (prevRealToken === null) {
             prevType = 'NULL';
         }
@@ -37,10 +35,10 @@ var Debug = /** @class */ (function () {
         console.log('prevReal: ' + prevType + '[' + prevToken + ']');
         console.log("from: " + Debug.charStateToString(currentLabelState));
         console.log("to:   " + Debug.charStateToString(nextLabelState)) + "[" + token + "]";
-    };
-    Debug.getTokenDebugString = function (lrt) {
-        var prevType;
-        var prevToken = '';
+    }
+    static getTokenDebugString(lrt) {
+        let prevType;
+        let prevToken = '';
         if (lrt === null) {
             prevType = 'NULL';
         }
@@ -48,46 +46,46 @@ var Debug = /** @class */ (function () {
             prevType = this.charStateToString(lrt.charType);
             prevToken = lrt.value;
         }
-        var prevTypeLength = (prevType) ? prevType.length : 0;
-        var oldT = prevType + this.padParts(prevTypeLength) + prevToken + '_';
+        let prevTypeLength = (prevType) ? prevType.length : 0;
+        let oldT = prevType + this.padParts(prevTypeLength) + prevToken + '_';
         return oldT;
-    };
-    Debug.padString = function (text) {
+    }
+    static padString(text) {
         return text + this.padParts(text.length);
-    };
-    Debug.padStringDots = function (padLength) {
-        var padding = '';
-        for (var i = 0; i < 16 - padLength; i++) {
+    }
+    static padStringDots(padLength) {
+        let padding = '';
+        for (let i = 0; i < 16 - padLength; i++) {
             padding += '.';
         }
         return padding;
-    };
-    Debug.padColumns = function (padLength) {
-        var padding = '';
-        for (var i = 0; i < 50 - padLength; i++) {
+    }
+    static padColumns(padLength) {
+        let padding = '';
+        for (let i = 0; i < 50 - padLength; i++) {
             padding += ' ';
         }
         return padding;
-    };
-    Debug.padParts = function (padLength) {
-        var padding = '';
-        for (var i = 0; i < 16 - padLength; i++) {
+    }
+    static padParts(padLength) {
+        let padding = '';
+        for (let i = 0; i < 16 - padLength; i++) {
             padding += ' ';
         }
         return padding;
-    };
-    Debug.debugHeading = function () {
-        var cachedT = 'Cached Real Token';
-        var newT = 'New Token';
-        var oldT = 'New Real Token';
-        var paddingCached = this.padColumns(cachedT.length);
-        var padding = this.padColumns(newT.length);
+    }
+    static debugHeading() {
+        let cachedT = 'Cached Real Token';
+        let newT = 'New Token';
+        let oldT = 'New Real Token';
+        let paddingCached = this.padColumns(cachedT.length);
+        let padding = this.padColumns(newT.length);
         console.log('===============================================================================================================');
         console.log(cachedT + paddingCached + newT);
         console.log('===============================================================================================================');
-    };
-    Debug.tokenStateToString = function (resolvedState) {
-        var r = undefined;
+    }
+    static tokenStateToString(resolvedState) {
+        let r = undefined;
         switch (resolvedState) {
             case Lexer_1.TokenLevelState.Attribute:
                 r = "Attribute";
@@ -131,9 +129,9 @@ var Debug = /** @class */ (function () {
                 r = "";
         }
         return r;
-    };
-    Debug.charStateToString = function (stringCommentState) {
-        var result = undefined;
+    }
+    static charStateToString(stringCommentState) {
+        let result = undefined;
         switch (stringCommentState) {
             case Lexer_1.CharLevelState.init:
                 result = "init";
@@ -221,19 +219,18 @@ var Debug = /** @class */ (function () {
                 break;
         }
         return result;
-    };
-    Debug.showTokens = function (token) {
-        var err = (token.error) ? ' error' : '';
-        var tokenValue = token.value + '';
-        var charState = Debug.charStateToString(token.charType);
-        console.log(Debug.padString(tokenValue) + Debug.padString(charState) + Debug.tokenStateToString(token.tokenType) + err);
-        if (token.children) {
-            console.log('--- children-start---');
-            token.children.forEach(Debug.showTokens);
-            console.log('--- children-end ----');
-        }
-    };
-    return Debug;
-}());
+    }
+}
 exports.Debug = Debug;
+Debug.showTokens = function (token) {
+    let err = (token.error) ? ' error' : '';
+    let tokenValue = token.value + '';
+    let charState = Debug.charStateToString(token.charType);
+    console.log(Debug.padString(tokenValue) + Debug.padString(charState) + Debug.tokenStateToString(token.tokenType) + err);
+    if (token.children) {
+        console.log('--- children-start---');
+        token.children.forEach(Debug.showTokens);
+        console.log('--- children-end ----');
+    }
+};
 //# sourceMappingURL=Debug.js.map
