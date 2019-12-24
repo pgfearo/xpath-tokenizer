@@ -27,11 +27,11 @@ let xpath13 = `let $increment := function($x as xs:integer) as xs:integer* {
 } return books/book/@title + $test`;
 // tests
 let xpath14 = `$a and 'a' and 23 and true() and function() and array[1] and $var and 5 + and and`;
-let xpath15 = `$a castable as xs:integer and $b instance of element()`;
+let xpath15 = `$a castable as xs:integer and union instance of element()`;
 let xpath16 = `'present' and and union $a`;
 
 
-let testXpath = xpath16;
+let testXpath = xpath15;
 
 let lexer: Lexer = new Lexer();
 

@@ -392,8 +392,9 @@ export class Lexer {
             let targetArray: Token[] = (addStackTokens)? stack[stack.length - 1].children: result;
             targetArray.push(newValue);
 
-            this.setLabelForLastTokenOnly(newValue);
-            this.setLabelsUsingCurrentToken(newValue);
+            let prevToken = this.latestRealToken;
+            this.setLabelForLastTokenOnly(prevToken, newValue);
+            this.setLabelsUsingCurrentToken(prevToken, newValue);
 
             let state = newValue.charType;
             if (!(state === CharLevelState.lC || state === CharLevelState.lWs)) {
@@ -405,9 +406,9 @@ export class Lexer {
         }
     }
 
-    private setLabelForLastTokenOnly(currentToken: Token) {
+    private setLabelForLastTokenOnly(prevToken: Token, currentToken: Token) {
         let currentState = currentToken.charType
-        let prevToken = this.latestRealToken;
+
         if (prevToken) {
             if (Lexer.isCharTypeEqual(prevToken, CharLevelState.lName)) {
                 switch (currentState) {
@@ -452,8 +453,7 @@ export class Lexer {
         }
     }
 
-    private setLabelsUsingCurrentToken(currentToken: Token) {
-        let prevToken = this.latestRealToken;
+    private setLabelsUsingCurrentToken(prevToken: Token, currentToken: Token) {
         if (!(prevToken)) {
             prevToken = new BasicToken(',', CharLevelState.sep);
             prevToken.tokenType = TokenLevelState.Operator;
