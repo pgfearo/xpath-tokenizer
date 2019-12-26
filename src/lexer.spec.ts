@@ -1,4 +1,21 @@
-import { Lexer, Token, CharLevelState, TokenLevelState } from './Lexer'
+import { Lexer, Token, CharLevelState, TokenLevelState, Utilities } from './Lexer'
+
+test('child tokens', () => {
+  let l: Lexer = new Lexer();
+  let rx: Token[] = l.analyse('1 + 2');
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: "1",
+tokenType: TokenLevelState.Number
+},
+{value: "+",
+tokenType: TokenLevelState.Operator
+},
+{value: "2",
+tokenType: TokenLevelState.Number
+},]
+  expect (r).toEqual(ts);
+});
 
 test('number token', () => {
     let l: Lexer = new Lexer();

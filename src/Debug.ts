@@ -39,8 +39,46 @@ charType: ${charType},
 tokenType: ${tokenType + childrenString}
 },`;
          return accumulator + objectString;
+    }
 
 
+    public static printMinSerializedTokens(testTitle: string, testXpath: string, tokens: Token[]) {
+        let preamble: string = `
+        
+        test('${testTitle}', () => {
+        let l: Lexer = new Lexer();
+        let rx: Token[] = l.analyse('${testXpath}');
+        let r: Token[] = Utilities.minimiseTokens(rx);
+        let ts: Token[] = `;
+        let postamble: string = `
+        expect (r).toEqual(ts);
+    });`
+        let r = tokens.reduce(this.minSerializeTokens, '');
+        let result = '[' + r + ']';
+
+        console.log(preamble + result + postamble);
+    }
+
+    private static minSerializeTokens = function(accumulator: any, token: Token|null): any {
+        if (token.charType.valueOf() === CharLevelState.lWs.valueOf()) {
+            return accumulator;
+        } else {
+            let err = (token.error)? ', error' : '\"\"';
+            let value = token.value;
+            let tokenType = 'TokenLevelState.' + Debug.tokenStateToString(token.tokenType);
+            let charType = 'CharLevelState.' + Debug.charStateToString(token.charType);
+            let childrenString: string = '';
+            if (token.children) {
+                childrenString = ',\nchildren:';
+                childrenString += '[' + token.children.reduce(Debug.serializeTokens, '') + ']';
+            }
+            let objectString = 
+            `
+    {value: "${value}",
+    tokenType: ${tokenType + childrenString}
+    },`;
+            return accumulator + objectString;
+        }   
     }
 
 

@@ -638,10 +638,24 @@ export class Lexer {
 
 export interface Token {
     value: string,
-    charType: CharLevelState;
+    charType?: CharLevelState;
     tokenType: TokenLevelState;
     children?: Token[];
     error?: boolean;
+}
+
+export class Utilities {
+
+    public static minimiseTokens(tokens: Token[]): Token[] {
+        let r: Token[] = new Array();
+        for (let token of tokens) {
+            if (token.charType.valueOf() !== CharLevelState.lWs) {
+                delete token.charType;
+                r.push(token);
+            }
+        }
+        return r;
+    }
 }
 
 class BasicToken implements Token {

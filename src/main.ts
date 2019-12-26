@@ -28,7 +28,7 @@ let xpath13 = `let $increment := function($x as xs:integer) as xs:integer* {
 // tests
 let xpath14 = `$a and 'a' and 23 and true() and function() and array[1] and $var and 5 + and and`;
 let xpath15 = `$a castable as xs:integer and union instance of element()`;
-let xpath16 = `255+($union+28)`;
+let xpath16 = `1 + 2`;
 
 
 let testXpath = xpath16;
@@ -43,7 +43,7 @@ console.log('*************');
 console.log(testXpath);
 console.log('*************');
 
-Debug.printSerializedTokens(testTitle, testXpath, tokens);
+Debug.printMinSerializedTokens(testTitle, testXpath, tokens);
 
 
 
