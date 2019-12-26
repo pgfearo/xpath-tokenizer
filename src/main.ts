@@ -28,10 +28,11 @@ let xpath13 = `let $increment := function($x as xs:integer) as xs:integer* {
 // tests
 let xpath14 = `$a and 'a' and 23 and true() and function() and array[1] and $var and 5 + and and`;
 let xpath15 = `$a castable as xs:integer and union instance of element()`;
-let xpath16 = `'present' and and union $a`;
+let xpath16 = `255+($union+28)`;
 
 
-let testXpath = xpath15;
+let testXpath = xpath16;
+let testTitle = 'child tokens';
 
 let lexer: Lexer = new Lexer();
 
@@ -41,6 +42,8 @@ let tokens: Token[] = lexer.analyse(testXpath);
 console.log('*************');
 console.log(testXpath);
 console.log('*************');
-Debug.printResultTokens(tokens);
+
+Debug.printSerializedTokens(testTitle, testXpath, tokens);
+
 
 

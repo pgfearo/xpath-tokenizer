@@ -365,7 +365,7 @@ export class Lexer {
     }
 
     private update(stack: Token[], result: Token[], tokenChars: string[], charState: CharLevelState) {
-        this.updateResult(stack, result, {value: tokenChars.join(''), charType: charState, tokenType: TokenLevelState.Unset} );
+        this.updateResult(stack, result, new BasicToken(tokenChars.join(''), charState ))
         tokenChars.length = 0;
     }
 
@@ -661,6 +661,12 @@ class BasicToken implements Token {
                 break;
             case CharLevelState.dSep:
             case CharLevelState.sep:
+            case CharLevelState.lB:
+            case CharLevelState.lBr:
+            case CharLevelState.lPr:
+            case CharLevelState.rB:
+            case CharLevelState.rBr:
+            case CharLevelState.rPr:
                 this.tokenType = TokenLevelState.Operator;
                 break;
             case CharLevelState.lAttr:
@@ -693,6 +699,6 @@ class ContainerToken implements Token {
         this.children = [];
         this.value = value;
         this.charType = type;
-        this.tokenType = TokenLevelState.Unset;
+        this.tokenType = TokenLevelState.Operator;
     }
 }

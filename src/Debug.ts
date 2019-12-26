@@ -6,12 +6,49 @@ export class Debug {
         tokens.forEach(Debug.showTokens);
     }
 
+    public static printSerializedTokens(testTitle: string, testXpath: string, tokens: Token[]) {
+        let preamble: string = `
+        
+        test('${testTitle}', () => {
+        let l: Lexer = new Lexer();
+        let r: Token[] = l.analyse('${testXpath}');
+        let ts: Token[] = `;
+        let postamble: string = `
+        expect (r).toEqual(ts);
+    });`
+        let r = tokens.reduce(this.serializeTokens, '');
+        let result = '[' + r + ']';
+
+        console.log(preamble + result + postamble);
+    }
+
+    private static serializeTokens = function(accumulator: any, token: Token|null): any {
+        let err = (token.error)? ', error' : '\"\"';
+        let value = token.value;
+        let tokenType = 'TokenLevelState.' + Debug.tokenStateToString(token.tokenType);
+        let charType = 'CharLevelState.' + Debug.charStateToString(token.charType);
+        let childrenString: string = '';
+        if (token.children) {
+            childrenString = ',\nchildren:';
+            childrenString += '[' + token.children.reduce(Debug.serializeTokens, '') + ']';
+        }
+        let objectString = 
+        `
+{value: "${value}",
+charType: ${charType},
+tokenType: ${tokenType + childrenString}
+},`;
+         return accumulator + objectString;
+
+
+    }
+
 
     private static showTokens = function(token: Token) {
         let err = (token.error)? ' error' : '';
         let tokenValue = token.value + '';
         let charState: string = Debug.charStateToString(token.charType);
-        console.log(Debug.padString(tokenValue) + Debug.padString(charState) + Debug.tokenStateToString(token.tokenType) + err) 
+        console.log(Debug.padString(tokenValue) + Debug.padString(charState) + Debug.tokenStateToString(token.tokenType) + err);
         if (token.children) {
             console.log('--- children-start---');
             token.children.forEach(Debug.showTokens);

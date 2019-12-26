@@ -5,6 +5,20 @@ class Debug {
     static printResultTokens(tokens) {
         tokens.forEach(Debug.showTokens);
     }
+    static printSerializedTokens(testTitle, testXpath, tokens) {
+        let preamble = `
+        
+        test('${testTitle}', () => {
+        let l: Lexer = new Lexer();
+        let r: Token[] = l.analyse('${testXpath}');
+        let ts: Token[] = `;
+        let postamble = `
+        expect (r).toEqual(ts);
+    });`;
+        let r = tokens.reduce(this.serializeTokens, '');
+        let result = '[' + r + ']';
+        console.log(preamble + result + postamble);
+    }
     static printDebugOutput(latestRealToken, cachedRealToken, newValue) {
         if (newValue.value !== '') {
             let showWhitespace = false;
@@ -222,6 +236,23 @@ class Debug {
     }
 }
 exports.Debug = Debug;
+Debug.serializeTokens = function (accumulator, token) {
+    let err = (token.error) ? ', error' : '\"\"';
+    let value = token.value;
+    let tokenType = 'TokenLevelState.' + Debug.tokenStateToString(token.tokenType);
+    let charType = 'CharLevelState.' + Debug.charStateToString(token.charType);
+    let childrenString = '';
+    if (token.children) {
+        childrenString = ',\nchildren:';
+        childrenString += '[' + token.children.reduce(Debug.serializeTokens, '') + ']';
+    }
+    let objectString = `
+{value: "${value}",
+charType: ${charType},
+tokenType: ${tokenType + childrenString}
+},`;
+    return accumulator + objectString;
+};
 Debug.showTokens = function (token) {
     let err = (token.error) ? ' error' : '';
     let tokenValue = token.value + '';
