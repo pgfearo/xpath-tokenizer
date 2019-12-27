@@ -1,4 +1,4 @@
-import {CharLevelState, TokenLevelState, Token} from "./xpathLexer";
+import {CharLevelState, TokenLevelState, Token} from "./xpLexer";
 
 export class Debug {
 

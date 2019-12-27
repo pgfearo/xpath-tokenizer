@@ -1,4 +1,4 @@
-import { XPathLexer, Token } from "./xpathLexer";
+import { XPathLexer, Token } from "./xpLexer";
 import { Debug } from "./Debug";
 
 let xpath1 = "pp(:(:q:)z:)rr'ss''mm'tt";
