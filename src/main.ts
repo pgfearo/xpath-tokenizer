@@ -1,4 +1,4 @@
-import { Lexer, Token } from "./Lexer";
+import { XPathLexer, Token } from "./XPathLexer";
 import { Debug } from "./Debug";
 
 let xpath1 = "pp(:(:q:)z:)rr'ss''mm'tt";
@@ -35,7 +35,7 @@ let testXpath = xpath16;
 let testTitle = 'child tokens';
 let generateTest = true;
 
-let lexer: Lexer = new Lexer();
+let lexer: XPathLexer = new XPathLexer();
 lexer.setDebug(!generateTest);
 let tokens: Token[] = lexer.analyse(testXpath);
 

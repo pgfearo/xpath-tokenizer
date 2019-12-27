@@ -1,4 +1,4 @@
-import {CharLevelState, TokenLevelState, Token} from "./Lexer";
+import {CharLevelState, TokenLevelState, Token} from "./XPathLexer";
 
 export class Debug {
 
@@ -10,7 +10,7 @@ export class Debug {
         let preamble: string = `
         
         test('${testTitle}', () => {
-        let l: Lexer = new Lexer();
+        let l: XPathLexer = new XPathLexer();
         let r: Token[] = l.analyse('${testXpath}');
         let ts: Token[] = `;
         let postamble: string = `

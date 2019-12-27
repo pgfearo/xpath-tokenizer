@@ -1,7 +1,7 @@
-import { Lexer, Token, CharLevelState, TokenLevelState, Utilities } from './Lexer'
+import { XPathLexer, Token, CharLevelState, TokenLevelState, Utilities } from './XPathLexer'
 
 test('child tokens', () => {
-  let l: Lexer = new Lexer();
+  let l: XPathLexer = new XPathLexer();
   let rx: Token[] = l.analyse('1 + 2');
   let r: Token[] = Utilities.minimiseTokens(rx);
   let ts: Token[] = [
@@ -18,7 +18,7 @@ tokenType: TokenLevelState.Number
 });
 
 test('number token', () => {
-    let l: Lexer = new Lexer();
+    let l: XPathLexer = new XPathLexer();
     let r: Token[] = l.analyse('255.7e-2+union');
 
     let t0: Token = { 
@@ -42,7 +42,7 @@ test('number token', () => {
 });
 
 test('child tokens', () => {
-  let l: Lexer = new Lexer();
+  let l: XPathLexer = new XPathLexer();
   let r: Token[] = l.analyse('255+($union+28)');
   let ts: Token[] = [
 {value: "255",

@@ -76,9 +76,9 @@ export class Data {
     }
 }
 
-export class Lexer {
+export class XPathLexer {
 
-    public debug: boolean = true;
+    public debug: boolean = false;
     public debugState: boolean = false;
     private latestRealToken: Token;
 
@@ -108,16 +108,16 @@ export class Lexer {
             case CharLevelState.lNl:
                 let charCode = char.charCodeAt(0);
                 let nextCharCode = (nextChar)? nextChar.charCodeAt(0): -1;
-                if (Lexer.isDigit(charCode) || char === '.') {
+                if (XPathLexer.isDigit(charCode) || char === '.') {
                     rv = existing;
                 } else if (char === 'e' || char === 'E') {
-                    if (nextChar === '-' || nextChar === '+' || Lexer.isDigit(nextCharCode)) {
+                    if (nextChar === '-' || nextChar === '+' || XPathLexer.isDigit(nextCharCode)) {
                         rv = CharLevelState.exp;
                     } else {
                         rv = existing;
                     }
                 } else {
-                    ({ rv, nesting } = Lexer.testChar(existing, firstCharOfToken, char, nextChar, nesting));
+                    ({ rv, nesting } = XPathLexer.testChar(existing, firstCharOfToken, char, nextChar, nesting));
                 }
                 break;
             case CharLevelState.exp:
@@ -128,7 +128,7 @@ export class Lexer {
                     rv = existing;
                 } else {
                     // we must switch to the new state, depending on the char/nextChar
-                    ({ rv, nesting } = Lexer.testChar(existing, firstCharOfToken, char, nextChar, nesting));
+                    ({ rv, nesting } = XPathLexer.testChar(existing, firstCharOfToken, char, nextChar, nesting));
                 }
                 break;
             case CharLevelState.lName:
@@ -138,7 +138,7 @@ export class Lexer {
                     rv = existing;
                 } else {
                     // we must switch to the new state, depending on the char/nextChar
-                    ({ rv, nesting } = Lexer.testChar(existing, isFirstChar, char, nextChar, nesting));
+                    ({ rv, nesting } = XPathLexer.testChar(existing, isFirstChar, char, nextChar, nesting));
                 }
                 break;
             case CharLevelState.dSep:
@@ -187,7 +187,7 @@ export class Lexer {
                 }
                 break; 
             default:
-                ({ rv, nesting } = Lexer.testChar(existing, isFirstChar, char, nextChar, nesting));
+                ({ rv, nesting } = XPathLexer.testChar(existing, isFirstChar, char, nextChar, nesting));
         }
         return [rv, nesting];
     }
@@ -213,7 +213,7 @@ export class Lexer {
             let isFirstTokenChar = tokenChars.length === 0;
     
             if (currentChar) {
-                nextState = Lexer.calcNewState(
+                nextState = XPathLexer.calcNewState(
                     isFirstTokenChar,
                     nestingState,
                     currentChar,
@@ -281,7 +281,7 @@ export class Lexer {
                                 let newToken: Token = new BasicToken(currentChar, nextLabelState);
                                 if (nestedTokenStack.length > 0) {
                                     // remove from nesting level
-                                    if (Lexer.closeMatchesOpen(nextLabelState, nestedTokenStack)) {
+                                    if (XPathLexer.closeMatchesOpen(nextLabelState, nestedTokenStack)) {
                                         nestedTokenStack.pop();
                                     } else {
                                         newToken.error = true;
@@ -414,7 +414,7 @@ export class Lexer {
         let currentState = currentToken.charType
 
         if (prevToken) {
-            if (Lexer.isCharTypeEqual(prevToken, CharLevelState.lName)) {
+            if (XPathLexer.isCharTypeEqual(prevToken, CharLevelState.lName)) {
                 switch (currentState) {
                     case CharLevelState.lVar:
                         if (Data.rangeVars.indexOf(prevToken.value) > -1) {
@@ -471,11 +471,11 @@ export class Lexer {
                 switch (prevToken.charType) {
                     case CharLevelState.lName:
                         // previous token was lName and current token is lName
-                        if (Data.secondParts.indexOf(currentValue) > -1 && Lexer.isPartOperator(prevToken.value, currentValue)) {
+                        if (Data.secondParts.indexOf(currentValue) > -1 && XPathLexer.isPartOperator(prevToken.value, currentValue)) {
                             // castable as etc.
                             prevToken.tokenType = TokenLevelState.Operator;
                             currentToken.tokenType = TokenLevelState.Operator;                               
-                        } else if (Lexer.isTokenTypeEqual(prevToken, TokenLevelState.Operator)) {
+                        } else if (XPathLexer.isTokenTypeEqual(prevToken, TokenLevelState.Operator)) {
                             // don't set to name because it may be a function etc.
                             //currentToken.tokenType = TokenLevelState.Name;
                             if (prevToken.value === 'as' || prevToken.value === 'of') {
@@ -483,7 +483,7 @@ export class Lexer {
                                 // TODO: check if value equals xs:integer or element?
                                 currentToken.tokenType = TokenLevelState.SimpleType;
                             }
-                        } else if (Lexer.isTokenTypeEqual(prevToken, TokenLevelState.Name) || Lexer.isTokenTypeAType(prevToken)) {
+                        } else if (XPathLexer.isTokenTypeEqual(prevToken, TokenLevelState.Name) || XPathLexer.isTokenTypeAType(prevToken)) {
                             Data.setAsOperatorIfKeyword(currentToken);
                         } 
                         break;
@@ -510,14 +510,14 @@ export class Lexer {
                         break;
                     default: // current token is an lName but previous token was not
 
-                        if (Lexer.isTokenTypeUnset(prevToken)
+                        if (XPathLexer.isTokenTypeUnset(prevToken)
                              && Data.keywords.indexOf(currentValue) > -1) {
                             currentToken.tokenType = TokenLevelState.Operator;
-                        } else if (Lexer.isCharTypeEqual(prevToken, CharLevelState.dSep) 
+                        } else if (XPathLexer.isCharTypeEqual(prevToken, CharLevelState.dSep) 
                                     && prevToken.value === '()' 
                                     && Data.keywords.indexOf(currentValue) > -1) {
                             currentToken.tokenType = TokenLevelState.Operator;
-                        } else if (Lexer.isTokenTypeEqual(prevToken, TokenLevelState.Operator) && 
+                        } else if (XPathLexer.isTokenTypeEqual(prevToken, TokenLevelState.Operator) && 
                             (prevToken.value === 'as' || prevToken.value === 'of')) {
                             currentToken.tokenType = TokenLevelState.SimpleType;
                         }
