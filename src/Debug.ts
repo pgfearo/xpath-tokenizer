@@ -220,6 +220,9 @@ tokenType: ${tokenType + childrenString}
             case TokenLevelState.Operator:
                 r = "Operator";
                 break;
+            case TokenLevelState.UriLiteral:
+                r = "UriLiteral";
+                break;
             case TokenLevelState.Unset:
                 r = "Unset";
             default:

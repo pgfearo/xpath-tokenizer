@@ -38,6 +38,7 @@ export enum TokenLevelState {
     Variable,
     Whitespace,
     String,
+    UriLiteral,
     NodeType,
     SimpleType,
     Axis,
@@ -696,6 +697,9 @@ class BasicToken implements Token {
             case CharLevelState.lSq:
             case CharLevelState.lDq:
                 this.tokenType = TokenLevelState.String;
+                break;
+            case CharLevelState.lUri:
+                this.tokenType = TokenLevelState.UriLiteral;
                 break;
             default:
                 this.tokenType = TokenLevelState.Unset;

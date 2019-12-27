@@ -154,3 +154,25 @@ tokenType: TokenLevelState.Name
 },]
   expect (r).toEqual(ts);
 });
+
+
+        
+test(`child tokens`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`$a eq Q{http://example.com}div`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `$a`,
+tokenType: TokenLevelState.Variable
+},
+{value: `eq`,
+tokenType: TokenLevelState.Operator
+},
+{value: `Q{http://example.com}`,
+tokenType: TokenLevelState.UriLiteral
+},
+{value: `div`,
+tokenType: TokenLevelState.Name
+},]
+  expect (r).toEqual(ts);
+});
