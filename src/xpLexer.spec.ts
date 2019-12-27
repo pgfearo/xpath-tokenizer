@@ -1,4 +1,4 @@
-import { XPathLexer, Token, CharLevelState, TokenLevelState, Utilities } from './xpathLexer'
+import { XPathLexer, Token, CharLevelState, TokenLevelState, Utilities } from './xpLexer'
 
 test('numeric operator', () => {
   let l: XPathLexer = new XPathLexer();
