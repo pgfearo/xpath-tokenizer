@@ -93,3 +93,64 @@ tokenType: TokenLevelState.Operator
 },]
   expect (r).toEqual(ts);
 });
+
+
+        
+test(`resolve ambiguous keywords`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`union and union and union div $var, div/and/union and .. and union`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `union`,
+tokenType: TokenLevelState.Name
+},
+{value: `and`,
+tokenType: TokenLevelState.Operator
+},
+{value: `union`,
+tokenType: TokenLevelState.Name
+},
+{value: `and`,
+tokenType: TokenLevelState.Operator
+},
+{value: `union`,
+tokenType: TokenLevelState.Name
+},
+{value: `div`,
+tokenType: TokenLevelState.Operator
+},
+{value: `$var`,
+tokenType: TokenLevelState.Variable
+},
+{value: `,`,
+tokenType: TokenLevelState.Operator
+},
+{value: `div`,
+tokenType: TokenLevelState.Name
+},
+{value: `/`,
+tokenType: TokenLevelState.Operator
+},
+{value: `and`,
+tokenType: TokenLevelState.Name
+},
+{value: `/`,
+tokenType: TokenLevelState.Operator
+},
+{value: `union`,
+tokenType: TokenLevelState.Name
+},
+{value: `and`,
+tokenType: TokenLevelState.Operator
+},
+{value: `..`,
+tokenType: TokenLevelState.Operator
+},
+{value: `and`,
+tokenType: TokenLevelState.Operator
+},
+{value: `union`,
+tokenType: TokenLevelState.Name
+},]
+  expect (r).toEqual(ts);
+});
