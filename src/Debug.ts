@@ -45,9 +45,9 @@ tokenType: ${tokenType + childrenString}
     public static printMinSerializedTokens(testTitle: string, testXpath: string, tokens: Token[]) {
         let preamble: string = `
         
-        test('${testTitle}', () => {
+        test(\`${testTitle}\`, () => {
         let l: XPathLexer = new XPathLexer();
-        let rx: Token[] = l.analyse('${testXpath}');
+        let rx: Token[] = l.analyse(\`${testXpath}\`);
         let r: Token[] = Utilities.minimiseTokens(rx);
         let ts: Token[] = `;
         let postamble: string = `
@@ -74,7 +74,7 @@ tokenType: ${tokenType + childrenString}
             }
             let objectString = 
             `
-    {value: "${value}",
+    {value: \`${value}\`,
     tokenType: ${tokenType + childrenString}
     },`;
             return accumulator + objectString;

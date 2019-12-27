@@ -1,6 +1,6 @@
 import { XPathLexer, Token, CharLevelState, TokenLevelState, Utilities } from './xpathLexer'
 
-test('child tokens', () => {
+test('numeric operator', () => {
   let l: XPathLexer = new XPathLexer();
   let rx: Token[] = l.analyse('1 + 2');
   let r: Token[] = Utilities.minimiseTokens(rx);
@@ -13,6 +13,23 @@ tokenType: TokenLevelState.Operator
 },
 {value: "2",
 tokenType: TokenLevelState.Number
+},]
+  expect (r).toEqual(ts);
+});
+       
+test(`stringLiteral escaping`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`'fir''st' || "seco""nd"`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `'fir''st'`,
+tokenType: TokenLevelState.String
+},
+{value: `||`,
+tokenType: TokenLevelState.Operator
+},
+{value: `"seco""nd"`,
+tokenType: TokenLevelState.String
 },]
   expect (r).toEqual(ts);
 });
