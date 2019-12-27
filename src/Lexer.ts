@@ -96,6 +96,10 @@ export class Lexer {
         return result;
     }
 
+    public setDebug(debug: boolean) {
+        this.debug = debug;
+    }
+
     private static calcNewState (isFirstChar: boolean, nesting: number, char: string, nextChar: string, existing: CharLevelState): [CharLevelState, number] {
         let rv: CharLevelState;
         let firstCharOfToken = true;
