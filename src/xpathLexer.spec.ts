@@ -176,3 +176,29 @@ tokenType: TokenLevelState.Name
 },]
   expect (r).toEqual(ts);
 });
+       
+test(`attribute castable as simple type`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`@myatt castable as xs:integer and $b`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `@myatt`,
+tokenType: TokenLevelState.Attribute
+},
+{value: `castable`,
+tokenType: TokenLevelState.Operator
+},
+{value: `as`,
+tokenType: TokenLevelState.Operator
+},
+{value: `xs:integer`,
+tokenType: TokenLevelState.SimpleType
+},
+{value: `and`,
+tokenType: TokenLevelState.Operator
+},
+{value: `$b`,
+tokenType: TokenLevelState.Variable
+},]
+  expect (r).toEqual(ts);
+});
