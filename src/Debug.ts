@@ -46,7 +46,7 @@ tokenType: ${tokenType + childrenString}
         let preamble: string = `
         
         test('${testTitle}', () => {
-        let l: Lexer = new Lexer();
+        let l: XPathLexer = new XPathLexer();
         let rx: Token[] = l.analyse('${testXpath}');
         let r: Token[] = Utilities.minimiseTokens(rx);
         let ts: Token[] = `;
