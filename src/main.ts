@@ -43,9 +43,9 @@ let tokens: Token[] = lexer.analyse(testXpath);
 if (generateTest) {
 	Debug.printMinSerializedTokens(testTitle, testXpath, tokens);
 } else {
-	console.log('*************');
+	console.log('---------------');
 	console.log(testXpath);
-	console.log('*************');
+	console.log('---------------');
 	Debug.printResultTokens(tokens);
 }
 
