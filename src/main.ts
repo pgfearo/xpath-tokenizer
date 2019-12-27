@@ -33,7 +33,7 @@ let xpath16 = `ancestor::node() union parent::table/@name`;
 
 let testXpath = xpath16;
 let testTitle = 'child tokens';
-let generateTest = false;
+let generateTest = true;
 
 let lexer: XPathLexer = new XPathLexer();
 lexer.setDebug(!generateTest);

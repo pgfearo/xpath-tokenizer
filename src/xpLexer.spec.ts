@@ -202,3 +202,43 @@ tokenType: TokenLevelState.Variable
 },]
   expect (r).toEqual(ts);
 });
+
+
+        
+test(`axis and nodetype`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`ancestor::node() union parent::table/@name`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `ancestor`,
+tokenType: TokenLevelState.Axis
+},
+{value: `::`,
+tokenType: TokenLevelState.Operator
+},
+{value: `node`,
+tokenType: TokenLevelState.NodeType
+},
+{value: `()`,
+tokenType: TokenLevelState.Operator
+},
+{value: `union`,
+tokenType: TokenLevelState.Operator
+},
+{value: `parent`,
+tokenType: TokenLevelState.Axis
+},
+{value: `::`,
+tokenType: TokenLevelState.Operator
+},
+{value: `table`,
+tokenType: TokenLevelState.Name
+},
+{value: `/`,
+tokenType: TokenLevelState.Operator
+},
+{value: `@name`,
+tokenType: TokenLevelState.Attribute
+},]
+  expect (r).toEqual(ts);
+});
