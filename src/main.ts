@@ -28,12 +28,12 @@ let xpath13 = `let $increment := function($x as xs:integer) as xs:integer* {
 // tests
 let xpath14 = `$a and 'a' and 23 and true() and function() and array[1] and $var and 5 + and and`;
 let xpath15 = `$a castable as xs:integer and union instance of element()`;
-let xpath16 = `@myatt castable as xs:integer and $b`;
+let xpath16 = `ancestor::node() union parent::table/@name`;
 
 
 let testXpath = xpath16;
 let testTitle = 'child tokens';
-let generateTest = true;
+let generateTest = false;
 
 let lexer: XPathLexer = new XPathLexer();
 lexer.setDebug(!generateTest);
