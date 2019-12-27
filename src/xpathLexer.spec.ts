@@ -157,7 +157,7 @@ tokenType: TokenLevelState.Name
 
 
         
-test(`child tokens`, () => {
+test(`literal uri`, () => {
   let l: XPathLexer = new XPathLexer();
   let rx: Token[] = l.analyse(`$a eq Q{http://example.com}div`);
   let r: Token[] = Utilities.minimiseTokens(rx);
