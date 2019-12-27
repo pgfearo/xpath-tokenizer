@@ -282,3 +282,27 @@ tokenType: TokenLevelState.Attribute
 },]
   expect (r).toEqual(ts);
 });
+        
+test(`function call`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`count($a)`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `count`,
+tokenType: TokenLevelState.Function
+},
+{value: `(`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: "$a",
+charType: CharLevelState.lVar,
+tokenType: TokenLevelState.Variable
+},]
+},
+{value: `)`,
+tokenType: TokenLevelState.Operator
+},]
+  expect (r).toEqual(ts);
+});
+
+
