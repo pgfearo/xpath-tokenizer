@@ -1,4 +1,4 @@
-import { XPathLexer, Token, CharLevelState, TokenLevelState, Utilities } from './XPathLexer'
+import { XPathLexer, Token, CharLevelState, TokenLevelState, Utilities } from './xpathLexer'
 
 test('child tokens', () => {
   let l: XPathLexer = new XPathLexer();
