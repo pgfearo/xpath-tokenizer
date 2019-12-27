@@ -33,17 +33,20 @@ let xpath16 = `1 + 2`;
 
 let testXpath = xpath16;
 let testTitle = 'child tokens';
+let generateTest = false;
 
 let lexer: Lexer = new Lexer();
-
-
 let tokens: Token[] = lexer.analyse(testXpath);
+
 
 console.log('*************');
 console.log(testXpath);
 console.log('*************');
-
-Debug.printMinSerializedTokens(testTitle, testXpath, tokens);
+if (generateTest) {
+	Debug.printMinSerializedTokens(testTitle, testXpath, tokens);
+} else {
+	Debug.printResultTokens(tokens);
+}
 
 
 
