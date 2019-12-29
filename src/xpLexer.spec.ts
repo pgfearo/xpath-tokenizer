@@ -346,7 +346,7 @@ tokenType: TokenLevelState.Variable
        
 test(`* wildcard 3`, () => {
   let l: XPathLexer = new XPathLexer();
-  let rx: Token[] = l.analyse(`/*:name union $b`);
+  let rx: Token[] = l.analyse(`/*:name div $b`);
   let r: Token[] = Utilities.minimiseTokens(rx);
   let ts: Token[] = [
 {value: `/`,
@@ -358,7 +358,7 @@ tokenType: TokenLevelState.Operator
 {value: `name`,
 tokenType: TokenLevelState.Name
 },
-{value: `union`,
+{value: `div`,
 tokenType: TokenLevelState.Operator
 },
 {value: `$b`,
