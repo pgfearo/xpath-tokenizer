@@ -135,7 +135,7 @@ export class XPathLexer {
             case CharLevelState.lName:
             case CharLevelState.lVar:
             case CharLevelState.lAttr:
-                if (char === '-' || char === '.' || (char === ':' && nextChar !== ':')) {
+                if (char === '-' || char === '.' || (char === ':' && !(nextChar === ':' || nextChar === '*'))) {
                     rv = existing;
                 } else {
                     // we must switch to the new state, depending on the char/nextChar
@@ -519,6 +519,22 @@ export class XPathLexer {
                             currentToken.tokenType = TokenLevelState.SimpleType;
                         }
                         break;
+                }
+                break;
+            case CharLevelState.sep:
+                if (currentToken.value === '*' && 
+                (
+                    XPathLexer.isTokenTypeEqual(prevToken, TokenLevelState.Operator) ||
+                    XPathLexer.isTokenTypeEqual(prevToken, TokenLevelState.UriLiteral)
+                )) {
+                    currentToken.charType = CharLevelState.lName;
+                    currentToken.tokenType = TokenLevelState.NodeType;
+                }
+                break;
+            case CharLevelState.dSep:
+                if (currentToken.value === ':*') {
+                    currentToken.charType = CharLevelState.lName;
+                    currentToken.tokenType = TokenLevelState.NodeType;
                 }
                 break;
         }

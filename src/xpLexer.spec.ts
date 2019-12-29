@@ -305,4 +305,103 @@ tokenType: TokenLevelState.Operator
   expect (r).toEqual(ts);
 });
 
+test(`* wildcard 1`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`* union $b`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `*`,
+tokenType: TokenLevelState.NodeType
+},
+{value: `union`,
+tokenType: TokenLevelState.Operator
+},
+{value: `$b`,
+tokenType: TokenLevelState.Variable
+},]
+  expect (r).toEqual(ts);
+});
+
+
+        
+test(`* wildcard 2`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`pre:* union $b`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `pre`,
+tokenType: TokenLevelState.Name
+},
+{value: `:*`,
+tokenType: TokenLevelState.NodeType
+},
+{value: `union`,
+tokenType: TokenLevelState.Operator
+},
+{value: `$b`,
+tokenType: TokenLevelState.Variable
+},]
+  expect (r).toEqual(ts);
+});
+       
+test(`* wildcard 3`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`/*:name union $b`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `/`,
+tokenType: TokenLevelState.Operator
+},
+{value: `*:`,
+tokenType: TokenLevelState.Operator
+},
+{value: `name`,
+tokenType: TokenLevelState.Name
+},
+{value: `union`,
+tokenType: TokenLevelState.Operator
+},
+{value: `$b`,
+tokenType: TokenLevelState.Variable
+},]
+  expect (r).toEqual(ts);
+});
+       
+test(`* wildcard 4`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`Q{http://example.com}* eq $b`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `Q{http://example.com}`,
+tokenType: TokenLevelState.UriLiteral
+},
+{value: `*`,
+tokenType: TokenLevelState.NodeType
+},
+{value: `eq`,
+tokenType: TokenLevelState.Operator
+},
+{value: `$b`,
+tokenType: TokenLevelState.Variable
+},]
+  expect (r).toEqual(ts);
+});
+
+test(`* multiplication`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`$var * 8`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `$var`,
+tokenType: TokenLevelState.Variable
+},
+{value: `*`,
+tokenType: TokenLevelState.Operator
+},
+{value: `8`,
+tokenType: TokenLevelState.Number
+},]
+  expect (r).toEqual(ts);
+});
+
 
