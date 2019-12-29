@@ -321,8 +321,6 @@ tokenType: TokenLevelState.Variable
 },]
   expect (r).toEqual(ts);
 });
-
-
         
 test(`* wildcard 2`, () => {
   let l: XPathLexer = new XPathLexer();
@@ -403,5 +401,84 @@ tokenType: TokenLevelState.Number
 },]
   expect (r).toEqual(ts);
 });
+       
+test(`array curly brace`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`array {1}`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `array`,
+tokenType: TokenLevelState.Operator
+},
+{value: `{`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: "1",
+charType: CharLevelState.lNl,
+tokenType: TokenLevelState.Number
+},]
+},
+{value: `}`,
+tokenType: TokenLevelState.Operator
+},]
+  expect (r).toEqual(ts);
+});
+       
+test(`array square brace`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`array [1]`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `array`,
+tokenType: TokenLevelState.Operator
+},
+{value: `[`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: "1",
+charType: CharLevelState.lNl,
+tokenType: TokenLevelState.Number
+},]
+},
+{value: `]`,
+tokenType: TokenLevelState.Operator
+},]
+  expect (r).toEqual(ts);
+});
+        
+test(`declaration`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`map {25: first}`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `map`,
+tokenType: TokenLevelState.Operator
+},
+{value: `{`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: "25",
+charType: CharLevelState.lNl,
+tokenType: TokenLevelState.Number
+},
+{value: ":",
+charType: CharLevelState.sep,
+tokenType: TokenLevelState.Operator
+},
+{value: " ",
+charType: CharLevelState.lWs,
+tokenType: TokenLevelState.Whitespace
+},
+{value: "first",
+charType: CharLevelState.lName,
+tokenType: TokenLevelState.Name
+},]
+},
+{value: `}`,
+tokenType: TokenLevelState.Operator
+},]
+  expect (r).toEqual(ts);
+});
+
 
 
