@@ -479,6 +479,88 @@ tokenType: TokenLevelState.Operator
 },]
   expect (r).toEqual(ts);
 });
-
-
+        
+test(`valid names`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`$pre:var22.5a || pre:name22.5b`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `$pre:var22.5a`,
+tokenType: TokenLevelState.Variable
+},
+{value: `||`,
+tokenType: TokenLevelState.Operator
+},
+{value: `pre:name22.5b`,
+tokenType: TokenLevelState.Name
+},]
+  expect (r).toEqual(ts);
+});
+       
+test(`valid names 2`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`$_pre:var22.5a || _pre:name22.5b`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `$_pre:var22.5a`,
+tokenType: TokenLevelState.Variable
+},
+{value: `||`,
+tokenType: TokenLevelState.Operator
+},
+{value: `_pre:name22.5b`,
+tokenType: TokenLevelState.Name
+},]
+  expect (r).toEqual(ts);
+});
+        
+test(`if then else test`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`if ($a eq 5) then $a else ()`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `if`,
+tokenType: TokenLevelState.Operator
+},
+{value: `(`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: "$a",
+charType: CharLevelState.lVar,
+tokenType: TokenLevelState.Variable
+},
+{value: " ",
+charType: CharLevelState.lWs,
+tokenType: TokenLevelState.Whitespace
+},
+{value: "eq",
+charType: CharLevelState.lName,
+tokenType: TokenLevelState.Operator
+},
+{value: " ",
+charType: CharLevelState.lWs,
+tokenType: TokenLevelState.Whitespace
+},
+{value: "5",
+charType: CharLevelState.lNl,
+tokenType: TokenLevelState.Number
+},]
+},
+{value: `)`,
+tokenType: TokenLevelState.Operator
+},
+{value: `then`,
+tokenType: TokenLevelState.Operator
+},
+{value: `$a`,
+tokenType: TokenLevelState.Variable
+},
+{value: `else`,
+tokenType: TokenLevelState.Function
+},
+{value: `()`,
+tokenType: TokenLevelState.Operator
+},]
+  expect (r).toEqual(ts);
+});
 

@@ -29,16 +29,19 @@ let xpath13 = `let $increment := function($x as xs:integer) as xs:integer* {
 let xpath14 = `$a and 'a' and 23 and true() and function() and array[1] and $var and 5 + and and`;
 let xpath15 = `$a castable as xs:integer and union instance of element()`;
 let xpath16 = `map {25: 'first'}, for $a in 1 to 100 return concat($a, 'this''quoted'' thing')`
-let largeXPath;
+let xpath17 = 'if ($a eq 5) then $a else ()';
+let largeXPath: string;
 for (let i = 0; i < 1000; i++) {
 	largeXPath += (' ' + xpath16);
 }
 
-
-let testXpath: string = largeXPath;
+// -------------
+let testXpath: string = xpath17;
 let testTitle = `declaration`;
-let generateTest = false;
-let timerOnly = true;
+let generateTest = true;
+let timerOnly = false;
+// =============
+
 generateTest = timerOnly? false: generateTest;
 let debugOn;
 if (timerOnly) {
