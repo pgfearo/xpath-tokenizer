@@ -535,7 +535,7 @@ tokenType: TokenLevelState.Operator
 tokenType: TokenLevelState.Variable
 },
 {value: `else`,
-tokenType: TokenLevelState.Function
+tokenType: TokenLevelState.Operator
 },
 {value: `()`,
 tokenType: TokenLevelState.Operator
