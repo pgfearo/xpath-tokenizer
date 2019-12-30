@@ -70,6 +70,8 @@ export class Data {
     public static firstParts = [ "cast", "castable", "instance"];
     public static secondParts = ["as", "of"];
 
+    public static nonFunctions = ["if", "then", "else", "map", "array", "function"];
+
     public static setAsOperatorIfKeyword(token: Token) {
         if (Data.keywords.indexOf(token.value) > -1) {
             token.tokenType = TokenLevelState.Operator;
@@ -428,8 +430,7 @@ export class XPathLexer {
                         }
                         break;
                     case CharLevelState.lB:
-                        if (prevToken.value === 'if' || prevToken.value === 'else' || prevToken.value === 'then' || 
-                            prevToken.value === 'map' || prevToken.value === 'array' || prevToken.value === 'function') {
+                        if (Data.nonFunctions.indexOf(prevToken.value) > -1) {
                             prevToken.tokenType = TokenLevelState.Operator;
                         } else if (Data.nodeTypes.indexOf(prevToken.value) > -1) {
                             prevToken.tokenType = TokenLevelState.NodeType;
@@ -441,7 +442,9 @@ export class XPathLexer {
                         if (currentToken.value === '::' && Data.axes.indexOf(prevToken.value) > -1) {
                             prevToken.tokenType = TokenLevelState.Axis;
                         } else if (currentToken.value === '()') {
-                            if (Data.nodeTypes.indexOf(prevToken.value) > -1) {
+                            if (Data.nonFunctions.indexOf(prevToken.value) > -1) {
+                                prevToken.tokenType = TokenLevelState.Operator;
+                            } else if (Data.nodeTypes.indexOf(prevToken.value) > -1) {
                                 prevToken.tokenType = TokenLevelState.NodeType;
                             } else {
                                 prevToken.tokenType = TokenLevelState.Function;
