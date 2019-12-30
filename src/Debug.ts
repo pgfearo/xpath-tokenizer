@@ -70,7 +70,7 @@ tokenType: ${tokenType + childrenString}
             let childrenString: string = '';
             if (token.children) {
                 childrenString = ',\nchildren:';
-                childrenString += '[' + token.children.reduce(Debug.serializeTokens, '') + ']';
+                childrenString += '[' + token.children.reduce(Debug.minSerializeTokens, '') + ']';
             }
             let objectString = 
             `

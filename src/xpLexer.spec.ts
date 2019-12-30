@@ -295,7 +295,6 @@ tokenType: TokenLevelState.Function
 tokenType: TokenLevelState.Operator,
 children:[
 {value: "$a",
-charType: CharLevelState.lVar,
 tokenType: TokenLevelState.Variable
 },]
 },
@@ -414,7 +413,6 @@ tokenType: TokenLevelState.Operator
 tokenType: TokenLevelState.Operator,
 children:[
 {value: "1",
-charType: CharLevelState.lNl,
 tokenType: TokenLevelState.Number
 },]
 },
@@ -436,7 +434,6 @@ tokenType: TokenLevelState.Operator
 tokenType: TokenLevelState.Operator,
 children:[
 {value: "1",
-charType: CharLevelState.lNl,
 tokenType: TokenLevelState.Number
 },]
 },
@@ -458,19 +455,12 @@ tokenType: TokenLevelState.Operator
 tokenType: TokenLevelState.Operator,
 children:[
 {value: "25",
-charType: CharLevelState.lNl,
 tokenType: TokenLevelState.Number
 },
 {value: ":",
-charType: CharLevelState.sep,
 tokenType: TokenLevelState.Operator
 },
-{value: " ",
-charType: CharLevelState.lWs,
-tokenType: TokenLevelState.Whitespace
-},
 {value: "first",
-charType: CharLevelState.lName,
 tokenType: TokenLevelState.Name
 },]
 },
@@ -513,8 +503,8 @@ tokenType: TokenLevelState.Name
 },]
   expect (r).toEqual(ts);
 });
-        
-test(`if then else test`, () => {
+               
+test(`if then else`, () => {
   let l: XPathLexer = new XPathLexer();
   let rx: Token[] = l.analyse(`if ($a eq 5) then $a else ()`);
   let r: Token[] = Utilities.minimiseTokens(rx);
@@ -525,24 +515,13 @@ tokenType: TokenLevelState.Operator
 {value: `(`,
 tokenType: TokenLevelState.Operator,
 children:[
-{value: "$a",
-charType: CharLevelState.lVar,
+{value: `$a`,
 tokenType: TokenLevelState.Variable
 },
-{value: " ",
-charType: CharLevelState.lWs,
-tokenType: TokenLevelState.Whitespace
-},
-{value: "eq",
-charType: CharLevelState.lName,
+{value: `eq`,
 tokenType: TokenLevelState.Operator
 },
-{value: " ",
-charType: CharLevelState.lWs,
-tokenType: TokenLevelState.Whitespace
-},
-{value: "5",
-charType: CharLevelState.lNl,
+{value: `5`,
 tokenType: TokenLevelState.Number
 },]
 },

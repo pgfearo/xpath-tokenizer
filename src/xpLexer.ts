@@ -677,6 +677,9 @@ export class Utilities {
                 delete token.charType;
                 r.push(token);
             }
+            if (token.children) {
+                token.children = this.minimiseTokens(token.children);
+            }
         }
         return r;
     }
