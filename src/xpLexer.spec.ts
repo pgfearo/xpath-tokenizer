@@ -542,4 +542,21 @@ tokenType: TokenLevelState.Operator
 },]
   expect (r).toEqual(ts);
 });
+       
+test(`numeric literals with dot chars`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`.55 + 1.`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `.55`,
+tokenType: TokenLevelState.Number
+},
+{value: `+`,
+tokenType: TokenLevelState.Operator
+},
+{value: `1.`,
+tokenType: TokenLevelState.Number
+},]
+  expect (r).toEqual(ts);
+});
 

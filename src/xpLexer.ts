@@ -428,7 +428,8 @@ export class XPathLexer {
                         }
                         break;
                     case CharLevelState.lB:
-                        if (prevToken.value === 'if') {
+                        if (prevToken.value === 'if' || prevToken.value === 'else' || prevToken.value === 'then' || 
+                            prevToken.value === 'map' || prevToken.value === 'array' || prevToken.value === 'function') {
                             prevToken.tokenType = TokenLevelState.Operator;
                         } else if (Data.nodeTypes.indexOf(prevToken.value) > -1) {
                             prevToken.tokenType = TokenLevelState.NodeType;
@@ -610,7 +611,11 @@ export class XPathLexer {
                     rv = CharLevelState.dSep;
                     break;
                 } else if (Data.separators.indexOf(char) > -1) {
-                    rv = CharLevelState.sep;
+                    if (char === '.' && !!(nextChar) && this.isDigit(nextChar.charCodeAt(0))) {
+                        rv = CharLevelState.lNl;
+                    } else {
+                        rv = CharLevelState.sep;
+                    }
                 } else if (isFirstChar) {
                     let charCode = char.charCodeAt(0);
                     let nextCharCode = (nextChar)? nextChar.charCodeAt(0): -1;
