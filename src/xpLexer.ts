@@ -194,6 +194,10 @@ export class XPathLexer {
     }
 
     public analyse(xpath: string): Token[] {
+        let timerOn: boolean = true;
+        if (timerOn) {
+            console.time('xplexer.analyse');
+        }
         this.latestRealToken = null;
         let prevRealToken: Token = null;
         let currentState: [CharLevelState, number] = [CharLevelState.init, 0];
@@ -347,6 +351,9 @@ export class XPathLexer {
             } // end if(currentChar)
             currentChar = nextChar;
         } // end iteration over chars
+        if (timerOn) {
+            console.timeEnd('xplexer.analyse');
+        }
         return result;
     }
 

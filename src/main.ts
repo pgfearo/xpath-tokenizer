@@ -28,20 +28,35 @@ let xpath13 = `let $increment := function($x as xs:integer) as xs:integer* {
 // tests
 let xpath14 = `$a and 'a' and 23 and true() and function() and array[1] and $var and 5 + and and`;
 let xpath15 = `$a castable as xs:integer and union instance of element()`;
-let xpath16 = `map {25: first}`
+let xpath16 = `map {25: 'first'}, for $a in 1 to 100 return concat($a, 'this''quoted'' thing')`
+let largeXPath;
+for (let i = 0; i < 1000; i++) {
+	largeXPath += (' ' + xpath16);
+}
 
 
-let testXpath = xpath16;
+let testXpath: string = largeXPath;
 let testTitle = `declaration`;
-let generateTest = true;
+let generateTest = false;
+let timerOnly = true;
+generateTest = timerOnly? false: generateTest;
+let debugOn;
+if (timerOnly) {
+	debugOn = false;
+} else {
+	debugOn = !generateTest;
+}
 
 let lexer: XPathLexer = new XPathLexer();
-lexer.setDebug(!generateTest);
+lexer.setDebug(debugOn);
 let tokens: Token[] = lexer.analyse(testXpath);
 
 
 if (generateTest) {
 	Debug.printMinSerializedTokens(testTitle, testXpath, tokens);
+} else if (timerOnly) {
+	console.log("XPath length: " + testXpath.length);
+	console.log("Token Count:" + tokens.length);
 } else {
 	console.log('---------------');
 	console.log(testXpath);
