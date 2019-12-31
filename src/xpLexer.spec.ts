@@ -561,7 +561,7 @@ tokenType: TokenLevelState.Number
   expect (r).toEqual(ts);
 });
 
-test(`declaration`, () => {
+test(`map type`, () => {
   let l: XPathLexer = new XPathLexer();
   let rx: Token[] = l.analyse(`$M instance of map(xs:integer, xs:string)`);
   let r: Token[] = Utilities.minimiseTokens(rx);
@@ -597,7 +597,7 @@ tokenType: TokenLevelState.Operator
   expect (r).toEqual(ts);
 });
        
-test(`declaration`, () => {
+test(`if else if else`, () => {
   let l: XPathLexer = new XPathLexer();
   let rx: Token[] = l.analyse(`if (level1) then 1 else if (level2) then 2 else 0`);
   let r: Token[] = Utilities.minimiseTokens(rx);
@@ -642,6 +642,63 @@ tokenType: TokenLevelState.Operator
 tokenType: TokenLevelState.Operator,
 children:[
 {value: `2`,
+tokenType: TokenLevelState.Number
+},
+{value: `else`,
+tokenType: TokenLevelState.Operator
+},]
+},
+{value: `0`,
+tokenType: TokenLevelState.Number
+},]
+  expect (r).toEqual(ts);
+});
+        
+test(`if if else else`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`if (level1) then if (level1.1) then 1.1 else 1.0 else 0`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `if`,
+tokenType: TokenLevelState.Operator
+},
+{value: `(`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `level1`,
+tokenType: TokenLevelState.Name
+},]
+},
+{value: `)`,
+tokenType: TokenLevelState.Operator
+},
+{value: `then`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `if`,
+tokenType: TokenLevelState.Operator
+},
+{value: `(`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `level1.1`,
+tokenType: TokenLevelState.Name
+},]
+},
+{value: `)`,
+tokenType: TokenLevelState.Operator
+},
+{value: `then`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `1.1`,
+tokenType: TokenLevelState.Number
+},
+{value: `else`,
+tokenType: TokenLevelState.Operator
+},]
+},
+{value: `1.0`,
 tokenType: TokenLevelState.Number
 },
 {value: `else`,
