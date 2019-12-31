@@ -7,6 +7,7 @@ Possible uses:
 - Semantic Highlighting
   - Unused variables
   - Unresolved variable references
+  - Code block matching
 - Linting
 
 Future intentions:
