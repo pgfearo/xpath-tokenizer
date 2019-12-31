@@ -5,6 +5,8 @@ work in progress...
 Possible uses:
 - Syntax Highlighting
 - Semantic Highlighting
+  - Unused variables
+  - Unresolved variable references
 - Linting
 
 Future intentions:
@@ -16,3 +18,4 @@ Design Goals:
 - Use single character lookahead
 - No regex
 - Manage scope of tokens in an object tree
+- Not a parser, so theres no AST
