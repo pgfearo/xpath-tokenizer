@@ -78,6 +78,11 @@ export class Data {
             token.tokenType = TokenLevelState.Operator;
         }
     }
+
+    public static conditionalPairs = 
+                    { else: "then", 
+                    satisfies: "in", 
+                    return: "in"};
 }
 
 export class XPathLexer {
@@ -408,17 +413,11 @@ export class XPathLexer {
             this.setLabelForLastTokenOnly(prevToken, newValue);
             this.setLabelsUsingCurrentToken(prevToken, newValue);
             if (XPathLexer.isTokenTypeEqual(newValue, TokenLevelState.Operator)) {
-                if (newValue.value === 'then') {
+                if (newValue.value === 'then' || newValue.value === 'in') {
                     newValue.children = [];
                     stack.push(newValue);
-                } else if (addStackTokens && newValue.value === 'else') {
-                    let stackToken: Token = stack[stack.length - 1];
-                    let val = stackToken.value;
-                    if (XPathLexer.isCharTypeEqual(stackToken, newValue.charType) && val === 'then') {
-                        stack.pop();
-                    } else {
-                        newValue.error = true;
-                    }
+                } else {
+                    this.conditionallyPopStack(stack, newValue);
                 }
             }
 
@@ -429,6 +428,21 @@ export class XPathLexer {
         }
         if (this.debug) {
             Debug.printDebugOutput(this.latestRealToken, cachedRealToken, newValue);
+        }
+    }
+
+    private conditionallyPopStack(stack: Token[], token: Token) {
+        if (stack.length > 0) {
+
+            let matchingPart1 = Data.conditionalPairs[token.value];
+            if (matchingPart1) {
+                let stackToken: Token = stack[stack.length - 1];
+                if (matchingPart1 === stackToken.value) {
+                    stack.pop();
+                } else {
+                    token.error = true;
+                }
+            }
         }
     }
 
