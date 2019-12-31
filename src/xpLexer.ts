@@ -407,6 +407,20 @@ export class XPathLexer {
             let prevToken = this.latestRealToken;
             this.setLabelForLastTokenOnly(prevToken, newValue);
             this.setLabelsUsingCurrentToken(prevToken, newValue);
+            if (XPathLexer.isTokenTypeEqual(newValue, TokenLevelState.Operator)) {
+                if (newValue.value === 'then') {
+                    newValue.children = [];
+                    stack.push(newValue);
+                } else if (addStackTokens && newValue.value === 'else') {
+                    let stackToken: Token = stack[stack.length - 1];
+                    let val = stackToken.value;
+                    if (XPathLexer.isCharTypeEqual(stackToken, newValue.charType) && val === 'then') {
+                        stack.pop();
+                    } else {
+                        newValue.error = true;
+                    }
+                }
+            }
 
             let state = newValue.charType;
             if (!(state === CharLevelState.lC || state === CharLevelState.lWs)) {

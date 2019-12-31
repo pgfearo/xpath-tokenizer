@@ -506,7 +506,7 @@ tokenType: TokenLevelState.Name
                
 test(`if then else`, () => {
   let l: XPathLexer = new XPathLexer();
-  let rx: Token[] = l.analyse(`if ($a eq 5) then $a else ()`);
+  let rx: Token[] = l.analyse(`if ($a eq 5) then $a else union`);
   let r: Token[] = Utilities.minimiseTokens(rx);
   let ts: Token[] = [
 {value: `if`,
@@ -529,16 +529,17 @@ tokenType: TokenLevelState.Number
 tokenType: TokenLevelState.Operator
 },
 {value: `then`,
-tokenType: TokenLevelState.Operator
-},
+tokenType: TokenLevelState.Operator,
+children:[
 {value: `$a`,
 tokenType: TokenLevelState.Variable
 },
 {value: `else`,
 tokenType: TokenLevelState.Operator
+},]
 },
-{value: `()`,
-tokenType: TokenLevelState.Operator
+{value: `union`,
+tokenType: TokenLevelState.Name
 },]
   expect (r).toEqual(ts);
 });
@@ -592,6 +593,63 @@ tokenType: TokenLevelState.Name
 },
 {value: `)`,
 tokenType: TokenLevelState.Operator
+},]
+  expect (r).toEqual(ts);
+});
+       
+test(`declaration`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`if (level1) then 1 else if (level2) then 2 else 0`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `if`,
+tokenType: TokenLevelState.Operator
+},
+{value: `(`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `level1`,
+tokenType: TokenLevelState.Name
+},]
+},
+{value: `)`,
+tokenType: TokenLevelState.Operator
+},
+{value: `then`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `1`,
+tokenType: TokenLevelState.Number
+},
+{value: `else`,
+tokenType: TokenLevelState.Operator
+},]
+},
+{value: `if`,
+tokenType: TokenLevelState.Operator
+},
+{value: `(`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `level2`,
+tokenType: TokenLevelState.Name
+},]
+},
+{value: `)`,
+tokenType: TokenLevelState.Operator
+},
+{value: `then`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `2`,
+tokenType: TokenLevelState.Number
+},
+{value: `else`,
+tokenType: TokenLevelState.Operator
+},]
+},
+{value: `0`,
+tokenType: TokenLevelState.Number
 },]
   expect (r).toEqual(ts);
 });
