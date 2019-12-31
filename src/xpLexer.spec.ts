@@ -560,3 +560,39 @@ tokenType: TokenLevelState.Number
   expect (r).toEqual(ts);
 });
 
+test(`declaration`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`$M instance of map(xs:integer, xs:string)`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `$M`,
+tokenType: TokenLevelState.Variable
+},
+{value: `instance`,
+tokenType: TokenLevelState.Operator
+},
+{value: `of`,
+tokenType: TokenLevelState.Operator
+},
+{value: `map`,
+tokenType: TokenLevelState.SimpleType
+},
+{value: `(`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `xs:integer`,
+tokenType: TokenLevelState.Name
+},
+{value: `,`,
+tokenType: TokenLevelState.Operator
+},
+{value: `xs:string`,
+tokenType: TokenLevelState.Name
+},]
+},
+{value: `)`,
+tokenType: TokenLevelState.Operator
+},]
+  expect (r).toEqual(ts);
+});
+

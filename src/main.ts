@@ -29,9 +29,9 @@ let xpath13 = `let $increment := function($x as xs:integer) as xs:integer* {
 let xpath14 = `$a and 'a' and 23 and true() and function() and array[1] and $var and 5 + and and`;
 let xpath15 = `$a castable as xs:integer and union instance of element()`;
 let xpath16 = `map {25: 'first'}, for $a in 1 to 100 return concat($a, 'this''quoted'' thing')`
-let xpath17 = '.55 + 1.';
+let xpath17 = '$M instance of map(xs:integer, xs:string)';
 let largeXPath: string;
-for (let i = 0; i < 1000; i++) {
+for (let i = 0; i < 5000; i++) {
 	largeXPath += (' ' + xpath16);
 }
 

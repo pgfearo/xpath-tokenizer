@@ -70,7 +70,8 @@ export class Data {
     public static firstParts = [ "cast", "castable", "instance"];
     public static secondParts = ["as", "of"];
 
-    public static nonFunctions = ["if", "then", "else", "map", "array", "function"];
+    public static nonFunctionConditional = ["if", "then", "else"];
+    public static nonFunctionTypes = ["map", "array", "function"];
 
     public static setAsOperatorIfKeyword(token: Token) {
         if (Data.keywords.indexOf(token.value) > -1) {
@@ -417,6 +418,18 @@ export class XPathLexer {
         }
     }
 
+    private updateTokenBeforeBrackets(prevToken: Token) {
+        if (Data.nonFunctionConditional.indexOf(prevToken.value) > -1) {
+            prevToken.tokenType = TokenLevelState.Operator;
+        } else if (Data.nonFunctionTypes.indexOf(prevToken.value) > -1) {
+            prevToken.tokenType = TokenLevelState.SimpleType;
+        } else if (Data.nodeTypes.indexOf(prevToken.value) > -1) {
+            prevToken.tokenType = TokenLevelState.NodeType;
+        } else {
+            prevToken.tokenType = TokenLevelState.Function;
+        }
+    }
+
     private setLabelForLastTokenOnly(prevToken: Token, currentToken: Token) {
         let currentState = currentToken.charType
 
@@ -430,25 +443,13 @@ export class XPathLexer {
                         }
                         break;
                     case CharLevelState.lB:
-                        if (Data.nonFunctions.indexOf(prevToken.value) > -1) {
-                            prevToken.tokenType = TokenLevelState.Operator;
-                        } else if (Data.nodeTypes.indexOf(prevToken.value) > -1) {
-                            prevToken.tokenType = TokenLevelState.NodeType;
-                        } else {
-                            prevToken.tokenType = TokenLevelState.Function;
-                        }
+                        this.updateTokenBeforeBrackets(prevToken);
                         break;
                     case CharLevelState.dSep:
                         if (currentToken.value === '::' && Data.axes.indexOf(prevToken.value) > -1) {
                             prevToken.tokenType = TokenLevelState.Axis;
                         } else if (currentToken.value === '()') {
-                            if (Data.nonFunctions.indexOf(prevToken.value) > -1) {
-                                prevToken.tokenType = TokenLevelState.Operator;
-                            } else if (Data.nodeTypes.indexOf(prevToken.value) > -1) {
-                                prevToken.tokenType = TokenLevelState.NodeType;
-                            } else {
-                                prevToken.tokenType = TokenLevelState.Function;
-                            }
+                            this.updateTokenBeforeBrackets(prevToken);
                         }
                         break;
                     case CharLevelState.lPr:
