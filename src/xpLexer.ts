@@ -324,10 +324,10 @@ export class XPathLexer {
                                     if (XPathLexer.closeMatchesOpen(nextLabelState, nestedTokenStack)) {
                                         nestedTokenStack.pop();
                                     } else {
-                                        newToken.error = true;
+                                        newToken['error'] = true;
                                     }
                                 } else {
-                                    newToken.error = true;
+                                    newToken['error'] = true;
                                 }
                                 this.updateResult(nestedTokenStack, result, newToken);
                                 tokenChars = [];
@@ -467,7 +467,7 @@ export class XPathLexer {
                 if (matchesPart1) {
                     stack.pop();
                 } else {
-                    token.error = true;
+                    token['error'] = true;
                 }
             }
         }

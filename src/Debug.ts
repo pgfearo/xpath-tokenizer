@@ -63,7 +63,7 @@ tokenType: ${tokenType + childrenString}
         if (token.charType.valueOf() === CharLevelState.lWs.valueOf()) {
             return accumulator;
         } else {
-            let err = (token.error)? ', error' : '\"\"';
+            let err = (token.hasOwnProperty('error'))? "\nerror: 'true'," : '';
             let value = token.value;
             let tokenType = 'TokenLevelState.' + Debug.tokenStateToString(token.tokenType);
             let charType = 'CharLevelState.' + Debug.charStateToString(token.charType);
@@ -74,7 +74,7 @@ tokenType: ${tokenType + childrenString}
             }
             let objectString = 
             `
-    {value: \`${value}\`,
+    {value: \`${value}\`,${err}
     tokenType: ${tokenType + childrenString}
     },`;
             return accumulator + objectString;
