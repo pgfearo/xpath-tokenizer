@@ -460,10 +460,12 @@ export class XPathLexer {
 
     private conditionallyPopStack(stack: Token[], token: Token) {
         if (stack.length > 0) {
-            let partInfo: [boolean, boolean] = Data.isPart2andMatchesPart1(stack[stack.length - 1], token);
+            let stackToken: Token = stack[stack.length - 1];
+            let partInfo: [boolean, boolean] = Data.isPart2andMatchesPart1(stackToken, token);
             let isPart2 = partInfo[0];
             let matchesPart1 = partInfo[1];
             if (isPart2) {
+                // TODO if token.value = 'return' pop stack n times if n levels of nesting:
                 if (matchesPart1) {
                     stack.pop();
                 } else {
