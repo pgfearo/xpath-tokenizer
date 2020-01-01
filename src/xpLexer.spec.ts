@@ -710,4 +710,45 @@ tokenType: TokenLevelState.Number
 },]
   expect (r).toEqual(ts);
 });
+        
+test(`comma inside if expr - error`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`if ($a) then 1,2 else 1`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `if`,
+tokenType: TokenLevelState.Operator
+},
+{value: `(`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `$a`,
+tokenType: TokenLevelState.Variable
+},]
+},
+{value: `)`,
+tokenType: TokenLevelState.Operator
+},
+{value: `then`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `1`,
+tokenType: TokenLevelState.Number
+},
+{value: `,`,
+error: true,
+tokenType: TokenLevelState.Operator
+},
+{value: `2`,
+tokenType: TokenLevelState.Number
+},
+{value: `else`,
+tokenType: TokenLevelState.Operator
+},]
+},
+{value: `1`,
+tokenType: TokenLevelState.Number
+},]
+  expect (r).toEqual(ts);
+});
 
