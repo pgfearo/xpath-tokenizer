@@ -751,4 +751,31 @@ tokenType: TokenLevelState.Number
 },]
   expect (r).toEqual(ts);
 });
+       
+test(`let expr`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`let $a := 2 return $a`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `let`,
+tokenType: TokenLevelState.Declaration
+},
+{value: `$a`,
+tokenType: TokenLevelState.Variable
+},
+{value: `:=`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `2`,
+tokenType: TokenLevelState.Number
+},
+{value: `return`,
+tokenType: TokenLevelState.Operator
+},]
+},
+{value: `$a`,
+tokenType: TokenLevelState.Variable
+},]
+  expect (r).toEqual(ts);
+});
 

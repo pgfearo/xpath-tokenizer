@@ -440,7 +440,7 @@ export class XPathLexer {
             this.setLabelForLastTokenOnly(prevToken, newValue);
             this.setLabelsUsingCurrentToken(prevToken, newValue);
             if (XPathLexer.isTokenTypeEqual(newValue, TokenLevelState.Operator)) {
-                if (newValue.value === 'then' || newValue.value === 'in') {
+                if (newValue.value === 'then' || newValue.value === 'in' || newValue.value === ':=') {
                     newValue.children = [];
                     stack.push(newValue);
                 } else {
