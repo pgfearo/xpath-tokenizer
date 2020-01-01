@@ -66,7 +66,7 @@ export class Data {
                                 "lt", "map", "mod", "ne", "of", "or", "return", "satisfies",
                                 "then", "to", "treat", "union"];
 
-    public static rangeVars = ["every", "for", "let", "some"]
+    public static rangeVars = ["every", "for", "let", "some"];
     public static firstParts = [ "cast", "castable", "instance"];
     public static secondParts = ["as", "of"];
 
@@ -79,10 +79,37 @@ export class Data {
         }
     }
 
-    public static conditionalPairs = 
-                    { else: "then", 
-                    satisfies: "in", 
-                    return: "in"};
+    public static isPart2andMatchesPart1(part1Token: Token, part2Token: Token): [boolean, boolean] {
+        let p1 = part1Token.value;
+        let p2 = part2Token.value;
+        let isPart2: boolean;
+        let matchesPart1: boolean;
+
+        switch (p2) {
+            case "else":
+                isPart2 = true;
+                matchesPart1 = p1 === 'then';
+                break;
+            case "satisfies":
+                isPart2 = true;
+                matchesPart1 = p1 === 'in';
+                break;
+            case "return":
+                isPart2 = true;
+                matchesPart1 = p1 === 'in' || p1 === ':=';
+                break;
+            case ",":
+                matchesPart1 = p1 === 'in' || p1 === ':=';
+                // ',' added here as it must not appear in an if expr:
+                isPart2 = p1 === 'then', p1 === 'in' || p1 === ':=';
+                break;
+            default:
+                isPart2 = false;
+                matchesPart1 = false;
+                break;
+        }
+        return [isPart2, matchesPart1];
+    }
 }
 
 export class XPathLexer {
@@ -433,11 +460,11 @@ export class XPathLexer {
 
     private conditionallyPopStack(stack: Token[], token: Token) {
         if (stack.length > 0) {
-
-            let matchingPart1 = Data.conditionalPairs[token.value];
-            if (matchingPart1) {
-                let stackToken: Token = stack[stack.length - 1];
-                if (matchingPart1 === stackToken.value) {
+            let partInfo: [boolean, boolean] = Data.isPart2andMatchesPart1(stack[stack.length - 1], token);
+            let isPart2 = partInfo[0];
+            let matchesPart1 = partInfo[1];
+            if (isPart2) {
+                if (matchesPart1) {
                     stack.pop();
                 } else {
                     token.error = true;
