@@ -298,7 +298,7 @@ export class XPathLexer {
                         case CharLevelState.lBr:
                         case CharLevelState.lPr:
                             this.update(nestedTokenStack, result, tokenChars, currentLabelState);
-                            let currentToken: ContainerToken = new ContainerToken(currentChar, nextLabelState, prevRealToken);
+                            let currentToken: ContainerToken = new ContainerToken(currentChar, nextLabelState, this.latestRealToken);
                             this.updateResult(nestedTokenStack, result, currentToken);
                             // add to nesting level
                             nestedTokenStack.push(currentToken);

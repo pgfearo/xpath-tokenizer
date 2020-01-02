@@ -238,7 +238,7 @@ tokenType: TokenLevelState.Attribute
 
 
         
-test(`declarations`, () => {
+test(`axis and attribute shorthand`, () => {
   let l: XPathLexer = new XPathLexer();
   let rx: Token[] = l.analyse(`ancestor::node() union parent::table/@name`);
   let r: Token[] = Utilities.minimiseTokens(rx);
