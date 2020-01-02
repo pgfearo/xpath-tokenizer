@@ -831,4 +831,78 @@ tokenType: TokenLevelState.Operator
 },]
   expect (r).toEqual(ts);
 });
+       
+test(`nested range variable`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`for $a in 1 to 5, $b in 1 to 5 return concat($a, '.', $b)`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `for`,
+tokenType: TokenLevelState.Declaration
+},
+{value: `$a`,
+tokenType: TokenLevelState.Variable
+},
+{value: `in`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `1`,
+tokenType: TokenLevelState.Number
+},
+{value: `to`,
+tokenType: TokenLevelState.Operator
+},
+{value: `5`,
+tokenType: TokenLevelState.Number
+},
+{value: `,`,
+tokenType: TokenLevelState.Operator
+},
+{value: `$b`,
+tokenType: TokenLevelState.Variable
+},
+{value: `in`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `1`,
+tokenType: TokenLevelState.Number
+},
+{value: `to`,
+tokenType: TokenLevelState.Operator
+},
+{value: `5`,
+tokenType: TokenLevelState.Number
+},
+{value: `return`,
+tokenType: TokenLevelState.Operator
+},]
+},]
+},
+{value: `concat`,
+tokenType: TokenLevelState.Function
+},
+{value: `(`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `$a`,
+tokenType: TokenLevelState.Variable
+},
+{value: `,`,
+tokenType: TokenLevelState.Operator
+},
+{value: `'.'`,
+tokenType: TokenLevelState.String
+},
+{value: `,`,
+tokenType: TokenLevelState.Operator
+},
+{value: `$b`,
+tokenType: TokenLevelState.Variable
+},]
+},
+{value: `)`,
+tokenType: TokenLevelState.Operator
+},]
+  expect (r).toEqual(ts);
+});
 
