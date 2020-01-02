@@ -29,7 +29,7 @@ let xpath13 = `let $increment := function($x as xs:integer) as xs:integer* {
 let xpath14 = `$a and 'a' and 23 and true() and function() and array[1] and $var and 5 + and and`;
 let xpath15 = `$a castable as xs:integer and union instance of element()`;
 let xpath16 = `map {25: 'first'}, for $a in 1 to 100 return concat($a, 'this''quoted'' thing')`
-let xpath17 = `for $a in 1 to 5, $b in 1 to 5 return concat($a, '.', $b)`;
+let xpath17 = `every $a in * satisfies $a > 0, $b`;
 let largeXPath: string;
 for (let i = 0; i < 5000; i++) {
 	largeXPath += (' ' + xpath16);

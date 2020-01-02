@@ -432,7 +432,7 @@ export class XPathLexer {
             this.setLabelForLastTokenOnly(prevToken, newValue);
             this.setLabelsUsingCurrentToken(prevToken, newValue);
             if (XPathLexer.isTokenTypeEqual(newValue, TokenLevelState.Operator)) {
-                if (newValue.value === 'then' || newValue.value === 'in' || newValue.value === ':=' || newValue.value === 'return') {
+                if (newValue.value === 'then' || newValue.value === 'in' || newValue.value === ':=' || newValue.value === 'return' || newValue.value === 'satisfies') {
                     newValue.children = [];
                     stack.push(newValue);
                 } else {
@@ -454,7 +454,7 @@ export class XPathLexer {
         if (stack.length > 0) {
             let [isPart2, matchesPart1] = Data.isPart2andMatchesPart1(stack[stack.length - 1], token);
             const initStackVal = stack.length > 0? stack[stack.length - 1].value: '';
-            if (initStackVal === 'return' && token.value === ',') {
+            if ((initStackVal === 'return' || initStackVal === 'satisfies') && token.value === ',') {
                 stack.pop();
                 let validStackValue: string;
                 let init = true;
@@ -462,7 +462,7 @@ export class XPathLexer {
                     if (init) {
                         init = false;
                         let v = stack[stack.length - 1].value;
-                        if (v === ':=' || v === '') {
+                        if (v === ':=' || v === 'in') {
                             validStackValue = v;
                             stack.pop();
                         }                        
@@ -472,13 +472,7 @@ export class XPathLexer {
                         break;
                     }
                 }
-            } else if (isPart2) {
-                if (matchesPart1) {
-                    stack.pop();
-                } else {
-                    token['error'] = true;
-                }
-            }
+            } else if (isPart2) {if (matchesPart1) {stack.pop()} else token['error'] = true}
         }
     }
 

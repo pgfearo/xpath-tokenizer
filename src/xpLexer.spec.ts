@@ -963,4 +963,44 @@ tokenType: TokenLevelState.Name
 },]
   expect (r).toEqual(ts);
 });
+        
+test(`declaration`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`every $a in * satisfies $a > 0, $b`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `every`,
+tokenType: TokenLevelState.Declaration
+},
+{value: `$a`,
+tokenType: TokenLevelState.Variable
+},
+{value: `in`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `*`,
+tokenType: TokenLevelState.NodeType
+},
+{value: `satisfies`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `$a`,
+tokenType: TokenLevelState.Variable
+},
+{value: `>`,
+tokenType: TokenLevelState.Operator
+},
+{value: `0`,
+tokenType: TokenLevelState.Number
+},
+{value: `,`,
+tokenType: TokenLevelState.Operator
+},]
+},]
+},
+{value: `$b`,
+tokenType: TokenLevelState.Variable
+},]
+  expect (r).toEqual(ts);
+});
 
