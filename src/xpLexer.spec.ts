@@ -778,4 +778,57 @@ tokenType: TokenLevelState.Variable
 },]
   expect (r).toEqual(ts);
 });
+       
+test(`nested let expressions`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`let $a := 2, $b := 3 return ($a, $b)`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `let`,
+tokenType: TokenLevelState.Declaration
+},
+{value: `$a`,
+tokenType: TokenLevelState.Variable
+},
+{value: `:=`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `2`,
+tokenType: TokenLevelState.Number
+},
+{value: `,`,
+tokenType: TokenLevelState.Operator
+},
+{value: `$b`,
+tokenType: TokenLevelState.Variable
+},
+{value: `:=`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `3`,
+tokenType: TokenLevelState.Number
+},
+{value: `return`,
+tokenType: TokenLevelState.Function
+},]
+},]
+},
+{value: `(`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `$a`,
+tokenType: TokenLevelState.Variable
+},
+{value: `,`,
+tokenType: TokenLevelState.Operator
+},
+{value: `$b`,
+tokenType: TokenLevelState.Variable
+},]
+},
+{value: `)`,
+tokenType: TokenLevelState.Operator
+},]
+  expect (r).toEqual(ts);
+});
 

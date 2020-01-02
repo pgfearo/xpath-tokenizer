@@ -460,12 +460,20 @@ export class XPathLexer {
 
     private conditionallyPopStack(stack: Token[], token: Token) {
         if (stack.length > 0) {
-            let partInfo: [boolean, boolean] = Data.isPart2andMatchesPart1(stack[stack.length - 1], token);
-            let isPart2 = partInfo[0];
-            let matchesPart1 = partInfo[1];
+            let [isPart2, matchesPart1] = Data.isPart2andMatchesPart1(stack[stack.length - 1], token);
             if (isPart2) {
                 if (matchesPart1) {
+                    const initStackVal = stack[stack.length - 1].value;
                     stack.pop();
+                    let repeat = token.value === 'return';
+                    while (repeat && stack.length > 0) {
+                        if (stack[stack.length - 1].value === initStackVal) {
+                            stack.pop();
+                        } else {
+                            repeat = false;
+                        }
+                    }
+
                 } else {
                     token['error'] = true;
                 }
