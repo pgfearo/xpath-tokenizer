@@ -752,7 +752,8 @@ tokenType: TokenLevelState.Number
   expect (r).toEqual(ts);
 });
        
-test(`let expr`, () => {
+        
+test(`declaration`, () => {
   let l: XPathLexer = new XPathLexer();
   let rx: Token[] = l.analyse(`let $a := 2 return $a`);
   let r: Token[] = Utilities.minimiseTokens(rx);
@@ -770,16 +771,17 @@ children:[
 tokenType: TokenLevelState.Number
 },
 {value: `return`,
-tokenType: TokenLevelState.Operator
-},]
-},
+tokenType: TokenLevelState.Operator,
+children:[
 {value: `$a`,
 tokenType: TokenLevelState.Variable
+},]
+},]
 },]
   expect (r).toEqual(ts);
 });
        
-test(`nested let expressions`, () => {
+test(`declaration`, () => {
   let l: XPathLexer = new XPathLexer();
   let rx: Token[] = l.analyse(`let $a := 2, $b := 3 return ($a, $b)`);
   let r: Token[] = Utilities.minimiseTokens(rx);
@@ -809,10 +811,8 @@ children:[
 tokenType: TokenLevelState.Number
 },
 {value: `return`,
-tokenType: TokenLevelState.Function
-},]
-},]
-},
+tokenType: TokenLevelState.Function,
+children:[
 {value: `(`,
 tokenType: TokenLevelState.Operator,
 children:[
@@ -829,10 +829,13 @@ tokenType: TokenLevelState.Variable
 {value: `)`,
 tokenType: TokenLevelState.Operator
 },]
+},]
+},]
+},]
   expect (r).toEqual(ts);
 });
-       
-test(`nested range variable`, () => {
+              
+test(`declaration`, () => {
   let l: XPathLexer = new XPathLexer();
   let rx: Token[] = l.analyse(`for $a in 1 to 5, $b in 1 to 5 return concat($a, '.', $b)`);
   let r: Token[] = Utilities.minimiseTokens(rx);
@@ -874,10 +877,8 @@ tokenType: TokenLevelState.Operator
 tokenType: TokenLevelState.Number
 },
 {value: `return`,
-tokenType: TokenLevelState.Operator
-},]
-},]
-},
+tokenType: TokenLevelState.Operator,
+children:[
 {value: `concat`,
 tokenType: TokenLevelState.Function
 },
@@ -902,6 +903,63 @@ tokenType: TokenLevelState.Variable
 },
 {value: `)`,
 tokenType: TokenLevelState.Operator
+},]
+},]
+},]
+},]
+  expect (r).toEqual(ts);
+});
+
+       
+test(`declaration`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`let $a := 1, $b := 2 return $a + 2, union`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `let`,
+tokenType: TokenLevelState.Declaration
+},
+{value: `$a`,
+tokenType: TokenLevelState.Variable
+},
+{value: `:=`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `1`,
+tokenType: TokenLevelState.Number
+},
+{value: `,`,
+tokenType: TokenLevelState.Operator
+},
+{value: `$b`,
+tokenType: TokenLevelState.Variable
+},
+{value: `:=`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `2`,
+tokenType: TokenLevelState.Number
+},
+{value: `return`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `$a`,
+tokenType: TokenLevelState.Variable
+},
+{value: `+`,
+tokenType: TokenLevelState.Operator
+},
+{value: `2`,
+tokenType: TokenLevelState.Number
+},
+{value: `,`,
+tokenType: TokenLevelState.Operator
+},]
+},]
+},]
+},
+{value: `union`,
+tokenType: TokenLevelState.Name
 },]
   expect (r).toEqual(ts);
 });
