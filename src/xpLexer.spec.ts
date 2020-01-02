@@ -56,39 +56,32 @@ test('number token', () => {
     expect(r[0]).toEqual(t0);
     expect(r[1]).toEqual(t1);
     expect(r[2]).toEqual(t2);
-});
-
-test('child tokens', () => {
+});       
+test(`parenthesis sum`, () => {
   let l: XPathLexer = new XPathLexer();
-  let r: Token[] = l.analyse('255+($union+28)');
+  let rx: Token[] = l.analyse(`255+($union+28)`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
   let ts: Token[] = [
-{value: "255",
-charType: CharLevelState.lNl,
+{value: `255`,
 tokenType: TokenLevelState.Number
 },
-{value: "+",
-charType: CharLevelState.sep,
+{value: `+`,
 tokenType: TokenLevelState.Operator
 },
-{value: "(",
-charType: CharLevelState.lB,
+{value: `(`,
 tokenType: TokenLevelState.Operator,
 children:[
-{value: "$union",
-charType: CharLevelState.lVar,
+{value: `$union`,
 tokenType: TokenLevelState.Variable
 },
-{value: "+",
-charType: CharLevelState.sep,
+{value: `+`,
 tokenType: TokenLevelState.Operator
 },
-{value: "28",
-charType: CharLevelState.lNl,
+{value: `28`,
 tokenType: TokenLevelState.Number
 },]
 },
-{value: ")",
-charType: CharLevelState.rB,
+{value: `)`,
 tokenType: TokenLevelState.Operator
 },]
   expect (r).toEqual(ts);

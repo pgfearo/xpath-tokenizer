@@ -298,7 +298,7 @@ export class XPathLexer {
                         case CharLevelState.lBr:
                         case CharLevelState.lPr:
                             this.update(nestedTokenStack, result, tokenChars, currentLabelState);
-                            let currentToken: ContainerToken = new ContainerToken(currentChar, nextLabelState);
+                            let currentToken: ContainerToken = new ContainerToken(currentChar, nextLabelState, prevRealToken);
                             this.updateResult(nestedTokenStack, result, currentToken);
                             // add to nesting level
                             nestedTokenStack.push(currentToken);
@@ -731,6 +731,7 @@ export interface Token {
     value: string,
     charType?: CharLevelState;
     tokenType: TokenLevelState;
+    context?: Token;
     children?: Token[];
     error?: boolean;
 }
@@ -742,6 +743,7 @@ export class Utilities {
         for (let token of tokens) {
             if (token.charType.valueOf() !== CharLevelState.lWs) {
                 delete token.charType;
+                delete token.context;
                 r.push(token);
             }
             if (token.children) {
@@ -805,11 +807,13 @@ class ContainerToken implements Token {
     charType: CharLevelState;
     children: Token[];
     tokenType: TokenLevelState;
+    context: Token;
 
-    constructor(value: string, type: CharLevelState) {
+    constructor(value: string, type: CharLevelState, context: Token) {
         this.children = [];
         this.value = value;
         this.charType = type;
         this.tokenType = TokenLevelState.Operator;
+        this.context = context;
     }
 }
