@@ -1014,4 +1014,30 @@ tokenType: TokenLevelState.Variable
 },]
   expect (r).toEqual(ts);
 });
+        
+test(`declaration`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`"one
+
+two
+three" || "new"`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `"one`,
+tokenType: TokenLevelState.String
+},
+{value: `two`,
+tokenType: TokenLevelState.String
+},
+{value: `three"`,
+tokenType: TokenLevelState.String
+},
+{value: `||`,
+tokenType: TokenLevelState.Operator
+},
+{value: `"new"`,
+tokenType: TokenLevelState.String
+},]
+  expect (r).toEqual(ts);
+});
 

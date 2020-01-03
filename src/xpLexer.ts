@@ -283,8 +283,15 @@ export class XPathLexer {
                     || (currentLabelState === CharLevelState.exp && nextLabelState == CharLevelState.lNl)) {
                     // do nothing if state has not changed
                     // or we're within a number with an exponent
-                    tokenChars.push(currentChar);
-                } else {
+                    if (currentChar == '\n' && (currentLabelState === CharLevelState.lSq || currentLabelState === CharLevelState.lDq || currentLabelState === CharLevelState.lC)) {
+                        // split multi-line strings or comments - don't include newline char
+                        this.update(nestedTokenStack, result, tokenChars, currentLabelState);
+                        this.lineNumber++;
+                        this.tokenCharNumber = 0;
+                    } else {
+                        tokenChars.push(currentChar);
+                    }
+                } else  {
                     // state has changed, so save token and start new token
                     switch (nextLabelState){
                         case CharLevelState.lNl:
@@ -450,13 +457,11 @@ export class XPathLexer {
         let state = newValue.charType;
 
         if (newValue.value !== '') {
-            let currentTokenCharNumber: number;
-            if (state === CharLevelState.lWs && this.wsNewLine) {
+            let currentTokenCharNumber = this.tokenCharNumber;;
+            if (this.wsNewLine) {
                 this.wsNewLine = false;
                 this.tokenCharNumber = this.wsCharNumber;
-                currentTokenCharNumber = this.wsCharNumber;
             } else {
-                currentTokenCharNumber = this.tokenCharNumber;
                 this.tokenCharNumber += newValue.value.length;
             }
 
