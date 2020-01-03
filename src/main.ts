@@ -1,4 +1,4 @@
-import { XPathLexer, Token } from "./xpLexer";
+import { XPathLexer, Token, TokenLevelState } from "./xpLexer";
 import { Debug } from "./Debug";
 
 let xpath1 = "pp(:(:q:)z:)rr'ss''mm'tt";
@@ -29,7 +29,7 @@ let xpath13 = `let $increment := function($x as xs:integer) as xs:integer* {
 let xpath14 = `$a and 'a' and 23 and true() and function() and array[1] and $var and 5 + and and`;
 let xpath15 = `$a castable as xs:integer and union instance of element()`;
 let xpath16 = `map {25: 'first'}, for $a in 1 to 100 return concat($a, 'this''quoted'' thing')`
-let xpath17 = `$a, (:comment:), $b`;
+let xpath17 = `255.7e-2+union`;
 let largeXPath: string;
 for (let i = 0; i < 5000; i++) {
 	largeXPath += (' ' + xpath16);
@@ -65,6 +65,15 @@ if (generateTest) {
 	console.log(testXpath);
 	console.log('---------------');
 	Debug.printResultTokens(tokens);
+	console.log('===============');
+	let lines = testXpath.split(/\r\n|\r|\n/);
+	for (let i = 0; i < tokens.length; i++) {
+		let t: Token = tokens[i];
+		if (t.tokenType.valueOf() !== TokenLevelState.Whitespace.valueOf()) {
+			let line = lines[t.line];
+			console.log(line.substr(t.startCharacter, t.length) + '_');
+		}
+	}
 }
 
 

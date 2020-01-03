@@ -94,19 +94,19 @@ tokenType: ${tokenType + childrenString}
         }
     }
 
-    public static printDebugOutput(latestRealToken: Token, cachedRealToken: Token, newValue: Token) {
+    public static printDebugOutput(latestRealToken: Token, cachedRealToken: Token, newValue: Token, lineNumber: number, startCharacter: number) {
         if (newValue.value !== '') {
             let showWhitespace = false;
-            let nextRealToken: string = this.getTokenDebugString(latestRealToken);
             let cachedRealTokenString: string = this.getTokenDebugString(cachedRealToken);
             let newT: string =  this.getTokenDebugString(newValue);
+            let posString: string = lineNumber + ':' + startCharacter;
+            let posPadding: string = this.padColumns(newT.length);
 
             let cachedTpadding: string = this.padColumns(cachedRealTokenString.length);
-            let newTpadding: string = this.padColumns(newT.length);
             if (newValue.charType === CharLevelState.lWs && !(showWhitespace)) {
                 // show nothing
             } else {
-                console.log(cachedRealTokenString + cachedTpadding +  newT);
+                console.log(cachedRealTokenString + cachedTpadding +  newT + posPadding + posString);
             }
         }
     }

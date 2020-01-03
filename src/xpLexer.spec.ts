@@ -1,17 +1,18 @@
 import { XPathLexer, Token, CharLevelState, TokenLevelState, Utilities } from './xpLexer'
 
-test('numeric operator', () => {
+
+test(`numeric operator`, () => {
   let l: XPathLexer = new XPathLexer();
-  let rx: Token[] = l.analyse('1 + 2');
+  let rx: Token[] = l.analyse(`1 + 2`);
   let r: Token[] = Utilities.minimiseTokens(rx);
   let ts: Token[] = [
-{value: "1",
+{value: `1`,
 tokenType: TokenLevelState.Number
 },
-{value: "+",
+{value: `+`,
 tokenType: TokenLevelState.Operator
 },
-{value: "2",
+{value: `2`,
 tokenType: TokenLevelState.Number
 },]
   expect (r).toEqual(ts);
@@ -33,30 +34,24 @@ tokenType: TokenLevelState.String
 },]
   expect (r).toEqual(ts);
 });
+       
+test(`number token`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`255.7e-2+union`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `255.7e-2`,
+tokenType: TokenLevelState.Number
+},
+{value: `+`,
+tokenType: TokenLevelState.Operator
+},
+{value: `union`,
+tokenType: TokenLevelState.Name
+},]
+  expect (r).toEqual(ts);
+});
 
-test('number token', () => {
-    let l: XPathLexer = new XPathLexer();
-    let r: Token[] = l.analyse('255.7e-2+union');
-
-    let t0: Token = { 
-      value: "255.7e-2", 
-      charType: CharLevelState.lNl, 
-      tokenType: TokenLevelState.Number
-    };
-    let t1: Token = { 
-      value: "+", 
-      charType: CharLevelState.sep, 
-      tokenType: TokenLevelState.Operator
-    };
-    let t2: Token = { 
-      value: "union", 
-      charType: CharLevelState.lName,
-      tokenType: TokenLevelState.Name
-    };
-    expect(r[0]).toEqual(t0);
-    expect(r[1]).toEqual(t1);
-    expect(r[2]).toEqual(t2);
-});       
 test(`parenthesis sum`, () => {
   let l: XPathLexer = new XPathLexer();
   let rx: Token[] = l.analyse(`255+($union+28)`);
