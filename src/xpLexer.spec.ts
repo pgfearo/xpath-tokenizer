@@ -1015,7 +1015,7 @@ tokenType: TokenLevelState.Variable
   expect (r).toEqual(ts);
 });
         
-test(`declaration`, () => {
+test(`multiline string literal`, () => {
   let l: XPathLexer = new XPathLexer();
   let rx: Token[] = l.analyse(`"one
 
