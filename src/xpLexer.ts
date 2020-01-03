@@ -31,21 +31,28 @@ export enum CharLevelState {
 }
 
 export enum TokenLevelState {
-    Attribute,
-    Comment,
-    Number,
-    Unset,
-    Operator,
-    Variable,
-    Whitespace,
-    String,
-    UriLiteral,
-    NodeType,
-    SimpleType,
-    Axis,
-    Name,
-    Declaration,
-    Function,
+    // where name does not correspond to semantic token name
+    // the comment shows the adopted name:
+    Attribute = 8,    // struct
+    Comment = 0,
+    Number = 3,
+    Unset = 14,       // macro
+    Operator = 5,
+    Variable = 15,
+    Whitespace = 20, // not used
+    String = 1,
+    UriLiteral = 16, // constant
+    NodeType = 17,   // parameter
+    SimpleType = 12, // parameterType
+    Axis = 19,       // label
+    Name = 9,        // class
+    Declaration = 2, // keyword
+    Function = 13,
+}
+
+export enum ModifierState {
+    UnusedVar = 0,     // declaration
+    UnresolvedRef = 1, // documentation
 }
 
 export class Data {
