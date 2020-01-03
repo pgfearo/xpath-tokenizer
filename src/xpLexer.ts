@@ -445,45 +445,46 @@ export class XPathLexer {
         return result;
     }
 
-    private updateResult(stack: Token[], result: Token[], newValue: Token) {
+    private updateResult(stack: Token[], result: Token[], newToken: Token) {
         let cachedRealToken = this.latestRealToken;
-        let state = newValue.charType;
+        let state = newToken.charType;
+        let newTokenValue = newToken.value;
 
-        if (newValue.value !== '') {
+        if (newTokenValue !== '') {
             let currentTokenCharNumber = this.tokenCharNumber;;
             if (this.wsNewLine) {
                 this.wsNewLine = false;
                 this.tokenCharNumber = this.wsCharNumber;
             } else {
-                this.tokenCharNumber += newValue.value.length;
+                this.tokenCharNumber += newTokenValue.length;
             }
 
-            newValue.line = this.lineNumber;
-            newValue.length = newValue.value.length;
-            newValue.startCharacter = currentTokenCharNumber;
+            newToken.line = this.lineNumber;
+            newToken.length = newTokenValue.length;
+            newToken.startCharacter = currentTokenCharNumber;
 
             let addStackTokens = stack.length > 0;
             let targetArray: Token[] = (addStackTokens)? stack[stack.length - 1].children: result;
-            targetArray.push(newValue);
+            targetArray.push(newToken);
 
             let prevToken = this.latestRealToken;
-            this.setLabelForLastTokenOnly(prevToken, newValue);
-            this.setLabelsUsingCurrentToken(prevToken, newValue);
-            if (XPathLexer.isTokenTypeEqual(newValue, TokenLevelState.Operator)) {
-                if (newValue.value === 'then' || newValue.value === 'in' || newValue.value === ':=' || newValue.value === 'return' || newValue.value === 'satisfies') {
-                    newValue.children = [];
-                    stack.push(newValue);
+            this.setLabelForLastTokenOnly(prevToken, newToken);
+            this.setLabelsUsingCurrentToken(prevToken, newToken);
+            if (XPathLexer.isTokenTypeEqual(newToken, TokenLevelState.Operator)) {
+                if (newTokenValue === 'then' || newTokenValue === 'in' || newTokenValue === ':=' || newTokenValue === 'return' || newTokenValue === 'satisfies') {
+                    newToken.children = [];
+                    stack.push(newToken);
                 } else {
-                    this.conditionallyPopStack(stack, newValue);
+                    this.conditionallyPopStack(stack, newToken);
                 }
             }
 
             if (!(state === CharLevelState.lC || state === CharLevelState.lWs)) {
-                this.latestRealToken = newValue;
+                this.latestRealToken = newToken;
             } 
 
             if (this.debug) {
-                Debug.printDebugOutput(this.latestRealToken, cachedRealToken, newValue, this.lineNumber, currentTokenCharNumber);
+                Debug.printDebugOutput(this.latestRealToken, cachedRealToken, newToken, this.lineNumber, currentTokenCharNumber);
             }
         }
     }
