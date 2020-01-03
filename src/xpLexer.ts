@@ -115,6 +115,7 @@ export class Data {
 export class XPathLexer {
 
     public debug: boolean = false;
+    public flatten: boolean = false;
     private latestRealToken: Token;
     private lineNumber: number;
     private wsCharNumber: number;
@@ -137,6 +138,10 @@ export class XPathLexer {
 
     public setDebug(debug: boolean) {
         this.debug = debug;
+    }
+
+    public setFlatten(flatten: boolean) {
+        this.flatten = flatten;
     }
 
     private calcNewState (isFirstChar: boolean, nesting: number, char: string, nextChar: string, existing: CharLevelState): [CharLevelState, number] {
@@ -403,7 +408,28 @@ export class XPathLexer {
         if (timerOn) {
             console.timeEnd('xplexer.analyse');
         }
-        return result;
+        if (this.flatten) {
+            let newResult: Token[] = []
+            this.flattenTokens(result, newResult)
+            return newResult;
+        } else {
+            return result;
+        }
+    }
+
+    // recursively flatten
+    private flattenTokens(tokens: Token[], accTokens: Token[]|null) {
+        for (let i = 0; i < tokens.length; i++) {
+            let t: Token = tokens[i];
+            if (t.children) {
+                let c = t.children;
+                delete t.children;
+                accTokens.push(t);
+                this.flattenTokens(c, accTokens);
+            } else {
+                accTokens.push(t);
+            }
+        }
     }
 
     private static closeMatchesOpen(close: CharLevelState, stack: Token[]): boolean {

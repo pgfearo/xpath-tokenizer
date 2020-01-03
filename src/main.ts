@@ -30,7 +30,10 @@ let xpath14 = `$a and 'a' and 23 and true() and function() and array[1] and $var
 let xpath15 = `$a castable as xs:integer and union instance of element()`;
 let xpath16 = `map {25: 'first'}, for $a in 1 to 100 return concat($a, 'this''quoted'' thing')`
 let xpath17 = 
-`if ($a) then $b (:something:) else $c`;
+`if ($a) then
+$b (:some
+thing:) 
+else $c`;
 let largeXPath: string;
 for (let i = 0; i < 5000; i++) {
 	largeXPath += (' ' + xpath16);
@@ -41,9 +44,11 @@ let testXpath: string = xpath17;
 let testTitle = `declaration`;
 let generateTest = false;
 let timerOnly = false;
+let flatten = true;
 // =============
 
 generateTest = timerOnly? false: generateTest;
+flatten = generateTest? false: flatten;
 let debugOn;
 if (timerOnly) {
 	debugOn = false;
@@ -53,6 +58,7 @@ if (timerOnly) {
 
 let lexer: XPathLexer = new XPathLexer();
 lexer.setDebug(debugOn);
+lexer.setFlatten(flatten);
 let tokens: Token[] = lexer.analyse(testXpath);
 
 
