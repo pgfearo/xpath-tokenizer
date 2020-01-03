@@ -1,4 +1,4 @@
-import { Debug } from "./Debug";
+import { Debug } from "./diagnostics";
 
 export enum CharLevelState {
     init,// 0 initial state

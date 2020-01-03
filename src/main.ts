@@ -1,5 +1,5 @@
 import { XPathLexer, Token, TokenLevelState } from "./xpLexer";
-import { Debug } from "./Debug";
+import { Debug } from "./diagnostics";
 
 let xpath1 = "pp(:(:q:)z:)rr'ss''mm'tt";
 let xpath2 = "pp'qq''rr'ss";
@@ -30,10 +30,7 @@ let xpath14 = `$a and 'a' and 23 and true() and function() and array[1] and $var
 let xpath15 = `$a castable as xs:integer and union instance of element()`;
 let xpath16 = `map {25: 'first'}, for $a in 1 to 100 return concat($a, 'this''quoted'' thing')`
 let xpath17 = 
-`"one
-
-two
-three" || "new"`;
+`if ($a) then $b (:something:) else $c`;
 let largeXPath: string;
 for (let i = 0; i < 5000; i++) {
 	largeXPath += (' ' + xpath16);
@@ -42,7 +39,7 @@ for (let i = 0; i < 5000; i++) {
 // -------------
 let testXpath: string = xpath17;
 let testTitle = `declaration`;
-let generateTest = true;
+let generateTest = false;
 let timerOnly = false;
 // =============
 
