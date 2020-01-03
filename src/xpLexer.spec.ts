@@ -56,39 +56,32 @@ test('number token', () => {
     expect(r[0]).toEqual(t0);
     expect(r[1]).toEqual(t1);
     expect(r[2]).toEqual(t2);
-});
-
-test('child tokens', () => {
+});       
+test(`parenthesis sum`, () => {
   let l: XPathLexer = new XPathLexer();
-  let r: Token[] = l.analyse('255+($union+28)');
+  let rx: Token[] = l.analyse(`255+($union+28)`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
   let ts: Token[] = [
-{value: "255",
-charType: CharLevelState.lNl,
+{value: `255`,
 tokenType: TokenLevelState.Number
 },
-{value: "+",
-charType: CharLevelState.sep,
+{value: `+`,
 tokenType: TokenLevelState.Operator
 },
-{value: "(",
-charType: CharLevelState.lB,
+{value: `(`,
 tokenType: TokenLevelState.Operator,
 children:[
-{value: "$union",
-charType: CharLevelState.lVar,
+{value: `$union`,
 tokenType: TokenLevelState.Variable
 },
-{value: "+",
-charType: CharLevelState.sep,
+{value: `+`,
 tokenType: TokenLevelState.Operator
 },
-{value: "28",
-charType: CharLevelState.lNl,
+{value: `28`,
 tokenType: TokenLevelState.Number
 },]
 },
-{value: ")",
-charType: CharLevelState.rB,
+{value: `)`,
 tokenType: TokenLevelState.Operator
 },]
   expect (r).toEqual(ts);
@@ -245,7 +238,7 @@ tokenType: TokenLevelState.Attribute
 
 
         
-test(`declarations`, () => {
+test(`axis and attribute shorthand`, () => {
   let l: XPathLexer = new XPathLexer();
   let rx: Token[] = l.analyse(`ancestor::node() union parent::table/@name`);
   let r: Token[] = Utilities.minimiseTokens(rx);
@@ -752,7 +745,8 @@ tokenType: TokenLevelState.Number
   expect (r).toEqual(ts);
 });
        
-test(`let expr`, () => {
+        
+test(`declaration`, () => {
   let l: XPathLexer = new XPathLexer();
   let rx: Token[] = l.analyse(`let $a := 2 return $a`);
   let r: Token[] = Utilities.minimiseTokens(rx);
@@ -770,10 +764,234 @@ children:[
 tokenType: TokenLevelState.Number
 },
 {value: `return`,
-tokenType: TokenLevelState.Operator
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `$a`,
+tokenType: TokenLevelState.Variable
 },]
+},]
+},]
+  expect (r).toEqual(ts);
+});
+       
+test(`declaration`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`let $a := 2, $b := 3 return ($a, $b)`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `let`,
+tokenType: TokenLevelState.Declaration
 },
 {value: `$a`,
+tokenType: TokenLevelState.Variable
+},
+{value: `:=`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `2`,
+tokenType: TokenLevelState.Number
+},
+{value: `,`,
+tokenType: TokenLevelState.Operator
+},
+{value: `$b`,
+tokenType: TokenLevelState.Variable
+},
+{value: `:=`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `3`,
+tokenType: TokenLevelState.Number
+},
+{value: `return`,
+tokenType: TokenLevelState.Function,
+children:[
+{value: `(`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `$a`,
+tokenType: TokenLevelState.Variable
+},
+{value: `,`,
+tokenType: TokenLevelState.Operator
+},
+{value: `$b`,
+tokenType: TokenLevelState.Variable
+},]
+},
+{value: `)`,
+tokenType: TokenLevelState.Operator
+},]
+},]
+},]
+},]
+  expect (r).toEqual(ts);
+});
+              
+test(`declaration`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`for $a in 1 to 5, $b in 1 to 5 return concat($a, '.', $b)`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `for`,
+tokenType: TokenLevelState.Declaration
+},
+{value: `$a`,
+tokenType: TokenLevelState.Variable
+},
+{value: `in`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `1`,
+tokenType: TokenLevelState.Number
+},
+{value: `to`,
+tokenType: TokenLevelState.Operator
+},
+{value: `5`,
+tokenType: TokenLevelState.Number
+},
+{value: `,`,
+tokenType: TokenLevelState.Operator
+},
+{value: `$b`,
+tokenType: TokenLevelState.Variable
+},
+{value: `in`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `1`,
+tokenType: TokenLevelState.Number
+},
+{value: `to`,
+tokenType: TokenLevelState.Operator
+},
+{value: `5`,
+tokenType: TokenLevelState.Number
+},
+{value: `return`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `concat`,
+tokenType: TokenLevelState.Function
+},
+{value: `(`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `$a`,
+tokenType: TokenLevelState.Variable
+},
+{value: `,`,
+tokenType: TokenLevelState.Operator
+},
+{value: `'.'`,
+tokenType: TokenLevelState.String
+},
+{value: `,`,
+tokenType: TokenLevelState.Operator
+},
+{value: `$b`,
+tokenType: TokenLevelState.Variable
+},]
+},
+{value: `)`,
+tokenType: TokenLevelState.Operator
+},]
+},]
+},]
+},]
+  expect (r).toEqual(ts);
+});
+
+       
+test(`declaration`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`let $a := 1, $b := 2 return $a + 2, union`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `let`,
+tokenType: TokenLevelState.Declaration
+},
+{value: `$a`,
+tokenType: TokenLevelState.Variable
+},
+{value: `:=`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `1`,
+tokenType: TokenLevelState.Number
+},
+{value: `,`,
+tokenType: TokenLevelState.Operator
+},
+{value: `$b`,
+tokenType: TokenLevelState.Variable
+},
+{value: `:=`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `2`,
+tokenType: TokenLevelState.Number
+},
+{value: `return`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `$a`,
+tokenType: TokenLevelState.Variable
+},
+{value: `+`,
+tokenType: TokenLevelState.Operator
+},
+{value: `2`,
+tokenType: TokenLevelState.Number
+},
+{value: `,`,
+tokenType: TokenLevelState.Operator
+},]
+},]
+},]
+},
+{value: `union`,
+tokenType: TokenLevelState.Name
+},]
+  expect (r).toEqual(ts);
+});
+        
+test(`declaration`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`every $a in * satisfies $a > 0, $b`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `every`,
+tokenType: TokenLevelState.Declaration
+},
+{value: `$a`,
+tokenType: TokenLevelState.Variable
+},
+{value: `in`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `*`,
+tokenType: TokenLevelState.NodeType
+},
+{value: `satisfies`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `$a`,
+tokenType: TokenLevelState.Variable
+},
+{value: `>`,
+tokenType: TokenLevelState.Operator
+},
+{value: `0`,
+tokenType: TokenLevelState.Number
+},
+{value: `,`,
+tokenType: TokenLevelState.Operator
+},]
+},]
+},
+{value: `$b`,
 tokenType: TokenLevelState.Variable
 },]
   expect (r).toEqual(ts);

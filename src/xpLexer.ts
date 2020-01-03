@@ -90,17 +90,9 @@ export class Data {
                 isPart2 = true;
                 matchesPart1 = p1 === 'then';
                 break;
-            case "satisfies":
-                isPart2 = true;
-                matchesPart1 = p1 === 'in';
-                break;
-            case "return":
-                isPart2 = true;
-                matchesPart1 = p1 === 'in' || p1 === ':=';
-                break;
             case ",":
                 matchesPart1 = p1 === 'in' || p1 === ':=';
-                // ',' added here as it must not appear in an if expr:
+                // 'then' added here as it must not appear in an if expr:
                 isPart2 = p1 === 'then', p1 === 'in' || p1 === ':=';
                 break;
             default:
@@ -306,7 +298,7 @@ export class XPathLexer {
                         case CharLevelState.lBr:
                         case CharLevelState.lPr:
                             this.update(nestedTokenStack, result, tokenChars, currentLabelState);
-                            let currentToken: ContainerToken = new ContainerToken(currentChar, nextLabelState);
+                            let currentToken: ContainerToken = new ContainerToken(currentChar, nextLabelState, this.latestRealToken);
                             this.updateResult(nestedTokenStack, result, currentToken);
                             // add to nesting level
                             nestedTokenStack.push(currentToken);
@@ -440,7 +432,7 @@ export class XPathLexer {
             this.setLabelForLastTokenOnly(prevToken, newValue);
             this.setLabelsUsingCurrentToken(prevToken, newValue);
             if (XPathLexer.isTokenTypeEqual(newValue, TokenLevelState.Operator)) {
-                if (newValue.value === 'then' || newValue.value === 'in' || newValue.value === ':=') {
+                if (newValue.value === 'then' || newValue.value === 'in' || newValue.value === ':=' || newValue.value === 'return' || newValue.value === 'satisfies') {
                     newValue.children = [];
                     stack.push(newValue);
                 } else {
@@ -460,18 +452,27 @@ export class XPathLexer {
 
     private conditionallyPopStack(stack: Token[], token: Token) {
         if (stack.length > 0) {
-            let stackToken: Token = stack[stack.length - 1];
-            let partInfo: [boolean, boolean] = Data.isPart2andMatchesPart1(stackToken, token);
-            let isPart2 = partInfo[0];
-            let matchesPart1 = partInfo[1];
-            if (isPart2) {
-                // TODO if token.value = 'return' pop stack n times if n levels of nesting:
-                if (matchesPart1) {
-                    stack.pop();
-                } else {
-                    token['error'] = true;
+            let [isPart2, matchesPart1] = Data.isPart2andMatchesPart1(stack[stack.length - 1], token);
+            const initStackVal = stack.length > 0? stack[stack.length - 1].value: '';
+            if ((initStackVal === 'return' || initStackVal === 'satisfies') && token.value === ',') {
+                stack.pop();
+                let validStackValue: string;
+                let init = true;
+                while (stack.length > 0) {
+                    if (init) {
+                        init = false;
+                        let v = stack[stack.length - 1].value;
+                        if (v === ':=' || v === 'in') {
+                            validStackValue = v;
+                            stack.pop();
+                        }                        
+                    } else if (stack[stack.length - 1].value === validStackValue) {
+                        stack.pop();
+                    } else {
+                        break;
+                    }
                 }
-            }
+            } else if (isPart2) {if (matchesPart1) {stack.pop()} else token['error'] = true}
         }
     }
 
@@ -730,6 +731,7 @@ export interface Token {
     value: string,
     charType?: CharLevelState;
     tokenType: TokenLevelState;
+    context?: Token;
     children?: Token[];
     error?: boolean;
 }
@@ -741,6 +743,7 @@ export class Utilities {
         for (let token of tokens) {
             if (token.charType.valueOf() !== CharLevelState.lWs) {
                 delete token.charType;
+                delete token.context;
                 r.push(token);
             }
             if (token.children) {
@@ -804,11 +807,13 @@ class ContainerToken implements Token {
     charType: CharLevelState;
     children: Token[];
     tokenType: TokenLevelState;
+    context: Token;
 
-    constructor(value: string, type: CharLevelState) {
+    constructor(value: string, type: CharLevelState, context: Token) {
         this.children = [];
         this.value = value;
         this.charType = type;
         this.tokenType = TokenLevelState.Operator;
+        this.context = context;
     }
 }
