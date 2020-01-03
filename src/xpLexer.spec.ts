@@ -996,4 +996,27 @@ tokenType: TokenLevelState.Variable
 },]
   expect (r).toEqual(ts);
 });
+       
+test(`declaration`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`$a, (:comment:), $b`);
+  let r: Token[] = Utilities.minimiseTokens(rx);
+  let ts: Token[] = [
+{value: `$a`,
+tokenType: TokenLevelState.Variable
+},
+{value: `,`,
+tokenType: TokenLevelState.Operator
+},
+{value: `(:comment:)`,
+tokenType: TokenLevelState.Comment
+},
+{value: `,`,
+tokenType: TokenLevelState.Operator
+},
+{value: `$b`,
+tokenType: TokenLevelState.Variable
+},]
+  expect (r).toEqual(ts);
+});
 

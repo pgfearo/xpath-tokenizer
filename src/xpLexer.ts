@@ -32,6 +32,7 @@ export enum CharLevelState {
 
 export enum TokenLevelState {
     Attribute,
+    Comment,
     Number,
     Unset,
     Operator,
@@ -401,7 +402,9 @@ export class XPathLexer {
     }
 
     private update(stack: Token[], result: Token[], tokenChars: string[], charState: CharLevelState) {
-        this.updateResult(stack, result, new BasicToken(tokenChars.join(''), charState ))
+        if (tokenChars.length > 0) {
+            this.updateResult(stack, result, new BasicToken(tokenChars.join(''), charState ))
+        }
         tokenChars.length = 0;
     }
 
@@ -794,6 +797,9 @@ class BasicToken implements Token {
                 break;
             case CharLevelState.lUri:
                 this.tokenType = TokenLevelState.UriLiteral;
+                break;
+            case CharLevelState.lC:
+                this.tokenType = TokenLevelState.Comment;
                 break;
             default:
                 this.tokenType = TokenLevelState.Unset;

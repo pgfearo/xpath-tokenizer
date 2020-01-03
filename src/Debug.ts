@@ -190,6 +190,9 @@ tokenType: ${tokenType + childrenString}
             case TokenLevelState.Number:
                 r = "Number";
                 break;
+            case TokenLevelState.Comment:
+                r = "Comment";
+                break;
             case TokenLevelState.Variable:
                 r = "Variable";
                 break;
