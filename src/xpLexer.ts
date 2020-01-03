@@ -115,7 +115,6 @@ export class Data {
 export class XPathLexer {
 
     public debug: boolean = false;
-    public debugState: boolean = false;
     private latestRealToken: Token;
     private lineNumber: number;
     private wsCharNumber: number;
@@ -388,13 +387,7 @@ export class XPathLexer {
                             }
                             break;
                     }
-                    if (this.debugState) {
-                        Debug.printStateOuput(prevRealToken, currentLabelState, nextLabelState, token);
-                    }
                     if (token) {
-                        if (this.debugState) {
-                            console.log('[' + token + ']' + ' type: ' + Debug.charStateToString(currentLabelState));
-                        }
                         this.updateResult(nestedTokenStack, result, new BasicToken(token, currentLabelState));
                     }
                 }
