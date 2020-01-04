@@ -121,6 +121,7 @@ export class XPathLexer {
     private wsCharNumber: number;
     private tokenCharNumber: number;
     private wsNewLine: boolean;
+    private deferWsNewLine: boolean;
 
     private static isPartOperator(firstPart: string, secondPart: string): boolean {
         let result = false;
@@ -252,7 +253,8 @@ export class XPathLexer {
         this.wsCharNumber = 0;
         this.tokenCharNumber = 0;
         this.wsNewLine = false;
-        let prevRealToken: Token = null;
+        this.deferWsNewLine = false;
+
         let currentState: [CharLevelState, number] = [CharLevelState.init, 0];
         let currentChar: string = null;
         let tokenChars: string[] = [];
@@ -401,7 +403,6 @@ export class XPathLexer {
                     this.updateResult(nestedTokenStack, result, new BasicToken(token, nextLabelState));
                 }
                 currentState = nextState;
-                prevRealToken = this.latestRealToken;
             } // end if(currentChar)
             currentChar = nextChar;
         } // end iteration over chars
@@ -477,17 +478,24 @@ export class XPathLexer {
         let newTokenValue = newToken.value;
 
         if (newTokenValue !== '') {
-            let currentTokenCharNumber = this.tokenCharNumber;;
-            if (this.wsNewLine) {
-                this.wsNewLine = false;
+
+            newToken.length = newTokenValue.length;
+            newToken.line = this.lineNumber;
+            newToken.startCharacter = this.tokenCharNumber;
+
+            if (this.deferWsNewLine) {
+                this.tokenCharNumber += newTokenValue.length; 
+                this.tokenCharNumber = 0;  
+                this.lineNumber++;            
+            } else if (this.wsNewLine) {
                 this.tokenCharNumber = this.wsCharNumber;
             } else {
                 this.tokenCharNumber += newTokenValue.length;
             }
 
-            newToken.line = this.lineNumber;
-            newToken.length = newTokenValue.length;
-            newToken.startCharacter = currentTokenCharNumber;
+            this.wsCharNumber = 0;
+            this.deferWsNewLine = false;
+            this.wsNewLine = false;
 
             let addStackTokens = stack.length > 0;
             let targetArray: Token[] = (addStackTokens)? stack[stack.length - 1].children: result;
@@ -510,7 +518,7 @@ export class XPathLexer {
             } 
 
             if (this.debug) {
-                Debug.printDebugOutput(this.latestRealToken, cachedRealToken, newToken, this.lineNumber, currentTokenCharNumber);
+                Debug.printDebugOutput(cachedRealToken, newToken, newToken.line, newToken.startCharacter);
             }
         }
     }
@@ -730,9 +738,7 @@ export class XPathLexer {
                 rv = CharLevelState.lWs;
                 break;
             case '\n':
-                this.wsNewLine = true;
-                this.lineNumber++;
-                this.wsCharNumber = 0;
+                this.deferWsNewLine = true;
                 rv = CharLevelState.lWs;
                 break;
             case '+':

@@ -94,7 +94,7 @@ tokenType: ${tokenType + childrenString}
         }
     }
 
-    public static printDebugOutput(latestRealToken: Token, cachedRealToken: Token, newValue: Token, lineNumber: number, startCharacter: number) {
+    public static printDebugOutput(cachedRealToken: Token, newValue: Token, lineNumber: number, startCharacter: number) {
         if (newValue.value !== '') {
             let showWhitespace = false;
             let cachedRealTokenString: string = this.getTokenDebugString(cachedRealToken);
