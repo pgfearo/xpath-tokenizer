@@ -1043,7 +1043,7 @@ tokenType: TokenLevelState.String
 
 /// minimiseTokens2:
         
-test(`declaration`, () => {
+test(`multi-line if then else`, () => {
   let l: XPathLexer = new XPathLexer();
   let rx: Token[] = l.analyse(`if ($a) then
 $b (:some
@@ -1112,6 +1112,61 @@ tokenType: TokenLevelState.Variable,
 line: 3,
 length: 2,
 startCharacter: 5
+},]
+  expect (r).toEqual(ts);
+});
+       
+test(`multi-line comment`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`(:comment
+split:)`);
+  let r: Token[] = Utilities.minimiseTokens2(rx);
+  let ts: Token[] = [
+{value: `(:comment`,
+tokenType: TokenLevelState.Comment,
+line: 0,
+length: 9,
+startCharacter: 0
+},
+{value: `split:)`,
+tokenType: TokenLevelState.Comment,
+line: 1,
+length: 7,
+startCharacter: 0
+},]
+  expect (r).toEqual(ts);
+});
+        
+test(`multi-line string`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`'multi-line
+string' eq 
+$a`);
+  let r: Token[] = Utilities.minimiseTokens2(rx);
+  let ts: Token[] = [
+{value: `'multi-line`,
+tokenType: TokenLevelState.String,
+line: 0,
+length: 11,
+startCharacter: 0
+},
+{value: `string'`,
+tokenType: TokenLevelState.String,
+line: 1,
+length: 7,
+startCharacter: 0
+},
+{value: `eq`,
+tokenType: TokenLevelState.Operator,
+line: 1,
+length: 2,
+startCharacter: 8
+},
+{value: `$a`,
+tokenType: TokenLevelState.Variable,
+line: 2,
+length: 2,
+startCharacter: 0
 },]
   expect (r).toEqual(ts);
 });

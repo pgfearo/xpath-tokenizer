@@ -30,10 +30,8 @@ let xpath14 = `$a and 'a' and 23 and true() and function() and array[1] and $var
 let xpath15 = `$a castable as xs:integer and union instance of element()`;
 let xpath16 = `map {25: 'first'}, for $a in 1 to 100 return concat($a, 'this''quoted'' thing')`
 let xpath17 = 
-`if ($a) then
-$b (:some
-thing:) 
-else $c`;
+`author,
+	title`;
 let largeXPath: string;
 for (let i = 0; i < 5000; i++) {
 	largeXPath += (' ' + xpath16);
@@ -42,9 +40,9 @@ for (let i = 0; i < 5000; i++) {
 // -------------
 let testXpath: string = xpath17;
 let testTitle = `declaration`;
-let generateTest = true;
+let generateTest = false;
 let timerOnly = false;
-let flatten = false;
+let flatten = true;
 // =============
 
 generateTest = timerOnly? false: generateTest;
