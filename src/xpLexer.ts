@@ -486,16 +486,17 @@ export class XPathLexer {
             if (this.deferWsNewLine) {
                 this.tokenCharNumber += newTokenValue.length; 
                 this.tokenCharNumber = 0;  
-                this.lineNumber++;            
+                this.lineNumber++; 
+                this.wsNewLine = true;
+                this.deferWsNewLine = false;        
             } else if (this.wsNewLine) {
                 this.tokenCharNumber = this.wsCharNumber;
+                this.wsNewLine = false;
             } else {
                 this.tokenCharNumber += newTokenValue.length;
             }
 
             this.wsCharNumber = 0;
-            this.deferWsNewLine = false;
-            this.wsNewLine = false;
 
             let addStackTokens = stack.length > 0;
             let targetArray: Token[] = (addStackTokens)? stack[stack.length - 1].children: result;
