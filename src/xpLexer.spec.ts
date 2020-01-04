@@ -1041,3 +1041,78 @@ tokenType: TokenLevelState.String
   expect (r).toEqual(ts);
 });
 
+/// minimiseTokens2:
+        
+test(`declaration`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`if ($a) then
+$b (:some
+thing:) 
+else $c`);
+  let r: Token[] = Utilities.minimiseTokens2(rx);
+  let ts: Token[] = [
+{value: `if`,
+tokenType: TokenLevelState.Operator,
+line: 0,
+length: 2,
+startCharacter: 0
+},
+{value: `(`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `$a`,
+tokenType: TokenLevelState.Variable,
+line: 0,
+length: 2,
+startCharacter: 4
+},],
+line: 0,
+length: 1,
+startCharacter: 3
+},
+{value: `)`,
+tokenType: TokenLevelState.Operator,
+line: 0,
+length: 1,
+startCharacter: 6
+},
+{value: `then`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `$b`,
+tokenType: TokenLevelState.Variable,
+line: 1,
+length: 2,
+startCharacter: 0
+},
+{value: `(:some`,
+tokenType: TokenLevelState.Comment,
+line: 1,
+length: 6,
+startCharacter: 3
+},
+{value: `thing:)`,
+tokenType: TokenLevelState.Comment,
+line: 2,
+length: 7,
+startCharacter: 0
+},
+{value: `else`,
+tokenType: TokenLevelState.Operator,
+line: 3,
+length: 4,
+startCharacter: 0
+},],
+line: 0,
+length: 4,
+startCharacter: 8
+},
+{value: `$c`,
+tokenType: TokenLevelState.Variable,
+line: 3,
+length: 2,
+startCharacter: 5
+},]
+  expect (r).toEqual(ts);
+});
+

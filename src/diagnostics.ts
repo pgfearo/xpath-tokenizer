@@ -48,7 +48,7 @@ tokenType: ${tokenType + childrenString}
         test(\`${testTitle}\`, () => {
         let l: XPathLexer = new XPathLexer();
         let rx: Token[] = l.analyse(\`${testXpath}\`);
-        let r: Token[] = Utilities.minimiseTokens(rx);
+        let r: Token[] = Utilities.minimiseTokens2(rx);
         let ts: Token[] = `;
         let postamble: string = `
         expect (r).toEqual(ts);
@@ -75,7 +75,10 @@ tokenType: ${tokenType + childrenString}
             let objectString = 
             `
     {value: \`${value}\`,${err}
-    tokenType: ${tokenType + childrenString}
+    tokenType: ${tokenType + childrenString},
+    line: ${token.line},
+    length: ${token.length},
+    startCharacter: ${token.startCharacter}
     },`;
             return accumulator + objectString;
         }   

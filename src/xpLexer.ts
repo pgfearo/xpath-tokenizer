@@ -837,6 +837,21 @@ export class Utilities {
         }
         return r;
     }
+
+    public static minimiseTokens2(tokens: Token[]): Token[] {
+        let r: Token[] = new Array();
+        for (let token of tokens) {
+            if (token.charType.valueOf() !== CharLevelState.lWs) {
+                delete token.charType;
+                delete token.context;
+                r.push(token);
+            }
+            if (token.children) {
+                token.children = this.minimiseTokens2(token.children);
+            }
+        }
+        return r;
+    }
 }
 
 class BasicToken implements Token {

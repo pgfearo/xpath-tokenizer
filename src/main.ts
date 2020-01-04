@@ -42,9 +42,9 @@ for (let i = 0; i < 5000; i++) {
 // -------------
 let testXpath: string = xpath17;
 let testTitle = `declaration`;
-let generateTest = false;
+let generateTest = true;
 let timerOnly = false;
-let flatten = true;
+let flatten = false;
 // =============
 
 generateTest = timerOnly? false: generateTest;
