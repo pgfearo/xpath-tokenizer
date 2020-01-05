@@ -1170,13 +1170,10 @@ startCharacter: 0
 },]
   expect (r).toEqual(ts);
 });
-       
-
         
 test(`newline whitespace after comma`, () => {
 let l: XPathLexer = new XPathLexer();
-let rx: Token[] = l.analyse(`author,
-title`);
+let rx: Token[] = l.analyse("author,\n\ttitle");
 let r: Token[] = Utilities.minimiseTokens2(rx);
 let ts: Token[] = [
 {value: `author`,
