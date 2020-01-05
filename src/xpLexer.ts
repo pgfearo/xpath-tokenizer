@@ -490,21 +490,19 @@ export class XPathLexer {
                     this.lineNumber++;
                     newToken.line = this.lineNumber;
                     this.tokenCharNumber = this.wsCharNumber;
-                    this.wsCharNumber = 0;
                 } else {
                     this.tokenCharNumber = 0; 
-                    this.wsCharNumber = 0; 
                     this.lineNumber++; 
                     this.wsNewLine = true;
                 }
                 this.deferWsNewLine = false;        
             } else if (this.wsNewLine) {
                 this.tokenCharNumber = this.wsCharNumber;
-                this.wsCharNumber = 0;
                 this.wsNewLine = false;
             } else {
                 this.tokenCharNumber += newTokenValue.length;
             }
+            this.wsCharNumber = 0;
 
 
             let addStackTokens = stack.length > 0;

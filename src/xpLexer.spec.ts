@@ -1196,4 +1196,67 @@ startCharacter: 1
 },]
   expect (r).toEqual(ts);
 });
+       
+test(`multiline map`, () => {
+  let l: XPathLexer = new XPathLexer();
+  let rx: Token[] = l.analyse(`map {\n\tabc: 2\n\tdef: 23\n\thij: 24\n}`);
+  let r: Token[] = Utilities.minimiseTokens2(rx);
+  let ts: Token[] = [
+{value: `map`,
+tokenType: TokenLevelState.Operator,
+line: 0,
+length: 3,
+startCharacter: 0
+},
+{value: `{`,
+tokenType: TokenLevelState.Operator,
+children:[
+{value: `abc:`,
+tokenType: TokenLevelState.Name,
+line: 1,
+length: 4,
+startCharacter: 1
+},
+{value: `2`,
+tokenType: TokenLevelState.Number,
+line: 1,
+length: 1,
+startCharacter: 6
+},
+{value: `def:`,
+tokenType: TokenLevelState.Name,
+line: 2,
+length: 4,
+startCharacter: 1
+},
+{value: `23`,
+tokenType: TokenLevelState.Number,
+line: 2,
+length: 2,
+startCharacter: 6
+},
+{value: `hij:`,
+tokenType: TokenLevelState.Name,
+line: 3,
+length: 4,
+startCharacter: 1
+},
+{value: `24`,
+tokenType: TokenLevelState.Number,
+line: 3,
+length: 2,
+startCharacter: 6
+},],
+line: 0,
+length: 1,
+startCharacter: 4
+},
+{value: `}`,
+tokenType: TokenLevelState.Operator,
+line: 4,
+length: 1,
+startCharacter: 0
+},]
+  expect (r).toEqual(ts);
+});
 
