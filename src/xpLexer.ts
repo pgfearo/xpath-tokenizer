@@ -483,20 +483,29 @@ export class XPathLexer {
             newToken.line = this.lineNumber;
             newToken.startCharacter = this.tokenCharNumber;
 
+            let isWhitespace = newToken.charType === CharLevelState.lWs;
+
             if (this.deferWsNewLine) {
-                this.tokenCharNumber += newTokenValue.length; 
-                this.tokenCharNumber = 0;  
-                this.lineNumber++; 
-                this.wsNewLine = true;
+                if (isWhitespace) {
+                    this.lineNumber++;
+                    newToken.line = this.lineNumber;
+                    this.tokenCharNumber = this.wsCharNumber;
+                    this.wsCharNumber = 0;
+                } else {
+                    this.tokenCharNumber = 0; 
+                    this.wsCharNumber = 0; 
+                    this.lineNumber++; 
+                    this.wsNewLine = true;
+                }
                 this.deferWsNewLine = false;        
             } else if (this.wsNewLine) {
                 this.tokenCharNumber = this.wsCharNumber;
+                this.wsCharNumber = 0;
                 this.wsNewLine = false;
             } else {
                 this.tokenCharNumber += newTokenValue.length;
             }
 
-            this.wsCharNumber = 0;
 
             let addStackTokens = stack.length > 0;
             let targetArray: Token[] = (addStackTokens)? stack[stack.length - 1].children: result;

@@ -99,7 +99,7 @@ tokenType: ${tokenType + childrenString}
 
     public static printDebugOutput(cachedRealToken: Token, newValue: Token, lineNumber: number, startCharacter: number) {
         if (newValue.value !== '') {
-            let showWhitespace = false;
+            let showWhitespace = true;
             let cachedRealTokenString: string = this.getTokenDebugString(cachedRealToken);
             let newT: string =  this.getTokenDebugString(newValue);
             let posString: string = lineNumber + ':' + startCharacter;

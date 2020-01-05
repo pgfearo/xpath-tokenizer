@@ -1170,4 +1170,33 @@ startCharacter: 0
 },]
   expect (r).toEqual(ts);
 });
+       
+
+        
+test(`newline whitespace after comma`, () => {
+let l: XPathLexer = new XPathLexer();
+let rx: Token[] = l.analyse(`author,
+title`);
+let r: Token[] = Utilities.minimiseTokens2(rx);
+let ts: Token[] = [
+{value: `author`,
+tokenType: TokenLevelState.Name,
+line: 0,
+length: 6,
+startCharacter: 0
+},
+{value: `,`,
+tokenType: TokenLevelState.Operator,
+line: 0,
+length: 1,
+startCharacter: 6
+},
+{value: `title`,
+tokenType: TokenLevelState.Name,
+line: 1,
+length: 5,
+startCharacter: 1
+},]
+  expect (r).toEqual(ts);
+});
 
