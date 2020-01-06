@@ -387,7 +387,13 @@ export class XPathLexer {
                         case CharLevelState.lBr:
                         case CharLevelState.lPr:
                             this.update(nestedTokenStack, result, tokenChars, currentLabelState);
-                            let currentToken: ContainerToken = new ContainerToken(currentChar, nextLabelState, this.latestRealToken);
+                            let currentToken: Token;
+                            if (this.flatten) {
+                                currentToken = new FlattenedToken(currentChar, nextLabelState, this.latestRealToken);
+                            } else {
+                                currentToken = new ContainerToken(currentChar, nextLabelState, this.latestRealToken);
+                            }
+
                             this.updateResult(nestedTokenStack, result, currentToken);
                             // add to nesting level
                             nestedTokenStack.push(currentToken);
@@ -948,6 +954,23 @@ class BasicToken implements Token {
                 this.tokenType = TokenLevelState.Unset;
                 break;
         }
+    }
+}
+
+class FlattenedToken implements Token {
+    line: number;
+    startCharacter: number;
+    length: number;
+    value: string;
+    charType: CharLevelState;
+    tokenType: TokenLevelState;
+    context: Token;
+
+    constructor(value: string, type: CharLevelState, context: Token) {
+        this.value = value;
+        this.charType = type;
+        this.tokenType = TokenLevelState.Operator;
+        this.context = context;
     }
 }
 

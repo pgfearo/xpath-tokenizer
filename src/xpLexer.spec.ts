@@ -746,7 +746,7 @@ tokenType: TokenLevelState.Number
 });
        
         
-test(`declaration`, () => {
+test(`simple let expression`, () => {
   let l: XPathLexer = new XPathLexer();
   let rx: Token[] = l.analyse(`let $a := 2 return $a`);
   let r: Token[] = Utilities.minimiseTokens(rx);
@@ -774,7 +774,7 @@ tokenType: TokenLevelState.Variable
   expect (r).toEqual(ts);
 });
        
-test(`declaration`, () => {
+test(`nested let expression`, () => {
   let l: XPathLexer = new XPathLexer();
   let rx: Token[] = l.analyse(`let $a := 2, $b := 3 return ($a, $b)`);
   let r: Token[] = Utilities.minimiseTokens(rx);
@@ -1261,6 +1261,39 @@ tokenType: TokenLevelState.Operator,
 line: 4,
 length: 1,
 startCharacter: 0
+},]
+  expect (r).toEqual(ts);
+});
+        
+test(`flatten token structure`, () => {
+  let l: XPathLexer = new XPathLexer();
+  l.setFlatten(true);
+  let rx: Token[] = l.analyse(`count($a)`);
+  let r: Token[] = Utilities.minimiseTokens2(rx);
+  let ts: Token[] = [
+{value: `count`,
+tokenType: TokenLevelState.Function,
+line: 0,
+length: 5,
+startCharacter: 0
+},
+{value: `(`,
+tokenType: TokenLevelState.Operator,
+line: 0,
+length: 1,
+startCharacter: 5
+},
+{value: `$a`,
+tokenType: TokenLevelState.Variable,
+line: 0,
+length: 2,
+startCharacter: 6
+},
+{value: `)`,
+tokenType: TokenLevelState.Operator,
+line: 0,
+length: 1,
+startCharacter: 8
 },]
   expect (r).toEqual(ts);
 });

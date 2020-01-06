@@ -35,7 +35,7 @@ let xpath16 =
 		  $a, 'this''quoted'' thing'
 	  )`
 let xpath17 = 
-`map {\n\tabc: 2\n\tdef: 23\n\thij: 24\n}`;
+`count($a)`;
 
 let largeXPath: string = '';
 for (let i = 0; i < 1300; i++) {
@@ -43,10 +43,10 @@ for (let i = 0; i < 1300; i++) {
 }
 
 // -------------
-let testXpath: string = largeXPath;
+let testXpath: string = xpath17;
 let testTitle = `declaration`;
-let generateTest = false;
-let timerOnly = true;
+let generateTest = true;
+let timerOnly = false;
 let flatten = true;
 // =============
 
@@ -57,9 +57,6 @@ if (timerOnly) {
 } else {
 	debugOn = !generateTest;
 }
-
-let myLegend = XPathLexer.getTextmateTypeLegend();
-console.log(myLegend);
 
 let lexer: XPathLexer = new XPathLexer();
 lexer.setDebug(debugOn);
