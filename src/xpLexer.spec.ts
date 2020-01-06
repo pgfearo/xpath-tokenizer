@@ -828,7 +828,7 @@ tokenType: TokenLevelState.Operator
   expect (r).toEqual(ts);
 });
               
-test(`declaration`, () => {
+test(`nested for loop`, () => {
   let l: XPathLexer = new XPathLexer();
   let rx: Token[] = l.analyse(`for $a in 1 to 5, $b in 1 to 5 return concat($a, '.', $b)`);
   let r: Token[] = Utilities.minimiseTokens(rx);
@@ -904,7 +904,7 @@ tokenType: TokenLevelState.Operator
 });
 
        
-test(`declaration`, () => {
+test(`nested let expression with sequence concatanation`, () => {
   let l: XPathLexer = new XPathLexer();
   let rx: Token[] = l.analyse(`let $a := 1, $b := 2 return $a + 2, union`);
   let r: Token[] = Utilities.minimiseTokens(rx);
@@ -957,7 +957,7 @@ tokenType: TokenLevelState.Name
   expect (r).toEqual(ts);
 });
         
-test(`declaration`, () => {
+test(`everyExpr with sequence concatanation`, () => {
   let l: XPathLexer = new XPathLexer();
   let rx: Token[] = l.analyse(`every $a in * satisfies $a > 0, $b`);
   let r: Token[] = Utilities.minimiseTokens(rx);
@@ -997,7 +997,7 @@ tokenType: TokenLevelState.Variable
   expect (r).toEqual(ts);
 });
        
-test(`declaration`, () => {
+test(`comment included in a sequence`, () => {
   let l: XPathLexer = new XPathLexer();
   let rx: Token[] = l.analyse(`$a, (:comment:), $b`);
   let r: Token[] = Utilities.minimiseTokens(rx);
