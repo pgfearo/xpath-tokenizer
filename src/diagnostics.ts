@@ -66,7 +66,6 @@ tokenType: ${tokenType + childrenString}
             let err = (token.hasOwnProperty('error'))? "\nerror: true," : '';
             let value = token.value;
             let tokenType = 'TokenLevelState.' + Debug.tokenStateToString(token.tokenType);
-            let charType = 'CharLevelState.' + Debug.charStateToString(token.charType);
             let childrenString: string = '';
             if (token.children) {
                 childrenString = ',\nchildren:';
@@ -184,148 +183,10 @@ tokenType: ${tokenType + childrenString}
     }
 
     public static tokenStateToString (resolvedState: TokenLevelState) : string {
-        let r: string = undefined;
-
-        switch (resolvedState) {
-            case TokenLevelState.Attribute:
-                r = "Attribute";
-                break;
-            case TokenLevelState.Number:
-                r = "Number";
-                break;
-            case TokenLevelState.Comment:
-                r = "Comment";
-                break;
-            case TokenLevelState.Variable:
-                r = "Variable";
-                break;
-            case TokenLevelState.Whitespace:
-                r = "Whitespace";
-                break;
-            case TokenLevelState.String:
-                r = "String";
-                break;
-            case TokenLevelState.Axis:
-                r = "Axis";
-                break;
-            case TokenLevelState.Declaration:
-                r = "Declaration";
-                break;
-            case TokenLevelState.Function:
-                r = "Function";
-                break;
-            case TokenLevelState.Name:
-                r = "Name";
-                break;
-            case TokenLevelState.NodeType:
-                r = "NodeType";
-                break;
-            case TokenLevelState.SimpleType:
-                r = "SimpleType";
-                break;
-            case TokenLevelState.Operator:
-                r = "Operator";
-                break;
-            case TokenLevelState.UriLiteral:
-                r = "UriLiteral";
-                break;
-            case TokenLevelState.Unset:
-                r = "Unset";
-            default:
-                r = "";
-        }
-        return r;
+        return TokenLevelState[resolvedState];
     }
 
     public static charStateToString (stringCommentState: CharLevelState) : string {
-        let result: string = undefined;
-
-        switch (stringCommentState) {
-            case CharLevelState.init:
-                result = "init";
-                break;
-            case CharLevelState.lB:
-                result = "lB";
-                break;
-            case CharLevelState.rB:
-                result = "rB";
-                break;
-            case CharLevelState.lC:
-                result = "lC";
-                break;
-            case CharLevelState.rC:
-                result = "rC";
-                break;
-            case CharLevelState.lSq:
-                result = "lSq";
-                break;
-            case CharLevelState.lDq:
-                result = "lDq";
-                break;
-            case CharLevelState.rSq:
-                result = "rSq";
-                break;
-            case CharLevelState.lDq:
-                result = "lDq";
-                break;
-            case CharLevelState.rDq:
-                result = "rDq";
-                break;
-            case CharLevelState.lBr:
-                result = "lBr";
-                break;
-            case CharLevelState.rBr:
-                result = "rBr";
-                break;
-            case CharLevelState.lWs:
-                result = "lWs";
-                break;
-            case CharLevelState.lPr:
-                result = "lPr";
-                break;
-            case CharLevelState.rPr:
-                result = "rPr";
-                break;
-            case CharLevelState.escDq:
-                result = "escDq";
-                break;
-            case CharLevelState.escSq:
-                result = "escSq";
-                break;
-            case CharLevelState.sep:
-                result = "sep";
-                break;
-            case CharLevelState.dSep:
-                result = "dSep";
-                break;
-            case CharLevelState.dSep2:
-                result = "dSep2";
-                break;
-            case CharLevelState.lUri:
-                result = "lUri";
-                break;
-            case CharLevelState.rUri:
-                result = "rUri";
-                break;
-            case CharLevelState.lNl:
-                result = "lNl";
-                break;
-            case CharLevelState.rNl:
-                result = "rNl";
-                break;
-            case CharLevelState.lVar:
-                result = "lVar";
-                break;
-            case CharLevelState.exp:
-                result = "exp";
-                break;
-            case CharLevelState.lName:
-                result = "lName";
-                break;
-            case CharLevelState.lAttr:
-                result = "lAttr";
-                break;
-         }
-        return result;
+        return CharLevelState[stringCommentState];
     }
 }
