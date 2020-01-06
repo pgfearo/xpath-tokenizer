@@ -1,5 +1,25 @@
 import { Debug } from "./diagnostics";
 
+const tokenTypes = new Map<string, number>();
+const tokenModifiers = new Map<string, number>();
+
+const legend = (function () {
+	const tokenTypesLegend = [
+		'comment', 'string', 'keyword', 'number', 'regexp', 'operator', 'namespace',
+		'type', 'struct', 'class', 'interface', 'enum', 'parameterType', 'function',
+		'macro', 'variable', 'constant', 'parameter', 'property', 'label'
+	];
+	tokenTypesLegend.forEach((tokenType, index) => tokenTypes.set(tokenType, index));
+
+	const tokenModifiersLegend = [
+		'declaration', 'documentation', 'member', 'static', 'abstract', 'deprecated',
+		'modification', 'async'
+	];
+	tokenModifiersLegend.forEach((tokenModifier, index) => tokenModifiers.set(tokenModifier, index));
+
+	//return new vscode.SemanticTokensLegend(tokenTypesLegend, tokenModifiersLegend);
+})();
+
 export enum CharLevelState {
     init,// 0 initial state
     lB,  // 1 left bracket
@@ -33,29 +53,50 @@ export enum CharLevelState {
 export enum TokenLevelState {
     // where name does not correspond to semantic token name
     // the comment shows the adopted name:
-    Attribute = 8,    // struct
-    Comment = 0,
-    Number = 3,
-    Unset = 14,       // macro
-    Operator = 5,
-    Variable = 15,
-    Whitespace = 20, // not used
-    String = 1,
-    UriLiteral = 16, // constant
-    NodeType = 17,   // parameter
-    SimpleType = 12, // parameterType
-    Axis = 19,       // label
-    Name = 9,        // class
-    Declaration = 2, // keyword
-    Function = 13,
+    Attribute,    // struct
+    Comment,
+    Number,
+    Unset,       // macro
+    Operator,
+    Variable,
+    Whitespace, // not used
+    String,
+    UriLiteral, // constant
+    NodeType,   // parameter
+    SimpleType, // parameterType
+    Axis,       // label
+    Name,        // class
+    Declaration, // keyword
+    Function,
 }
+
+const tokenTypeLookup: [string, string][] = 
+[
+    ['Attribute', 'struct'],
+    ['Comment', 'comment'],
+    ['Number', 'number'],
+    ['Unset', 'macro'], // not used
+    ['Operator', 'operator'],
+    ['Variable', 'variable'],
+    ['Whitespace', 'whitespace'], // not used
+    ['String','string'],
+    ['UriLiteral', 'constant'],
+    ['NodeType', 'parameter'],
+    ['SimpleType', 'parameterType'],
+    ['Axis', 'label'],
+    ['Name', 'class'],
+    ['Declaration', 'keyword'],
+    ['Function', 'function']
+];
+
+export type TokenTypeStrings = keyof typeof TokenLevelState;
 
 export enum ModifierState {
     UnusedVar = 0,     // declaration
     UnresolvedRef = 1, // documentation
 }
 
-export class Data {
+class Data {
     public static separators = ['!','*', '+', ',', '-', '.', '/', ':', '<', '=', '>', '?','|'];
 
     public static doubleSeps = ['!=', '*:', '..', '//', ':*', '::', ':=', '<<', '<=', '=>', '>=', '>>', '||'];
@@ -122,6 +163,19 @@ export class XPathLexer {
     private tokenCharNumber: number;
     private wsNewLine: boolean;
     private deferWsNewLine: boolean;
+
+    public static getTextmateTypeLegend(): string[] {
+        let textmateTypes = [];
+
+        let conversionMap = new Map(tokenTypeLookup);
+        let keyCount: number = tokenTypeLookup.length;
+
+        for (let i = 0; i < keyCount; i++) {
+            let enumString = TokenLevelState[i];
+            textmateTypes.push(conversionMap.get(enumString));
+        }
+        return textmateTypes;
+    }
 
     private static isPartOperator(firstPart: string, secondPart: string): boolean {
         let result = false;

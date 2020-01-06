@@ -38,7 +38,7 @@ let xpath17 =
 `map {\n\tabc: 2\n\tdef: 23\n\thij: 24\n}`;
 
 let largeXPath: string = '';
-for (let i = 0; i < 5000; i++) {
+for (let i = 0; i < 1300; i++) {
 	largeXPath += (', ' + xpath16);
 }
 
@@ -57,6 +57,9 @@ if (timerOnly) {
 } else {
 	debugOn = !generateTest;
 }
+
+let myLegend = XPathLexer.getTextmateTypeLegend();
+console.log(myLegend);
 
 let lexer: XPathLexer = new XPathLexer();
 lexer.setDebug(debugOn);

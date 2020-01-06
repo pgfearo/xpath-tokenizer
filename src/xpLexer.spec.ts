@@ -1,5 +1,10 @@
-import { XPathLexer, Token, CharLevelState, TokenLevelState, Utilities } from './xpLexer'
+import { XPathLexer, Token, TokenLevelState, Utilities } from './xpLexer'
 
+test('items in returned legend must equal count of TokenLevelState enum', () => {
+  let expectedTokenTypeCount = Object.keys(TokenLevelState).length / 2;
+  let tokenLegend = XPathLexer.getTextmateTypeLegend();
+  expect (tokenLegend.length).toEqual(expectedTokenTypeCount);
+});
 
 test(`numeric operator`, () => {
   let l: XPathLexer = new XPathLexer();
