@@ -409,28 +409,7 @@ export class XPathLexer {
         if (timerOn) {
             console.timeEnd('xplexer.analyse');
         }
-        if (this.flatten) {
-            let newResult: Token[] = []
-            this.flattenTokens(result, newResult)
-            return newResult;
-        } else {
-            return result;
-        }
-    }
-
-    // recursively flatten
-    private flattenTokens(tokens: Token[], accTokens: Token[]|null) {
-        for (let i = 0; i < tokens.length; i++) {
-            let t: Token = tokens[i];
-            if (t.children) {
-                let c = t.children;
-                delete t.children;
-                accTokens.push(t);
-                this.flattenTokens(c, accTokens);
-            } else {
-                accTokens.push(t);
-            }
-        }
+        return result;
     }
 
     private static closeMatchesOpen(close: CharLevelState, stack: Token[]): boolean {
@@ -504,17 +483,20 @@ export class XPathLexer {
             }
             this.wsCharNumber = 0;
 
-
-            let addStackTokens = stack.length > 0;
-            let targetArray: Token[] = (addStackTokens)? stack[stack.length - 1].children: result;
-            targetArray.push(newToken);
+            let addStackTokens =  !this.flatten && stack.length > 0;
+            if (!isWhitespace) {
+                let targetArray: Token[] = (addStackTokens)? stack[stack.length - 1].children: result;
+                targetArray.push(newToken);
+            }
 
             let prevToken = this.latestRealToken;
             this.setLabelForLastTokenOnly(prevToken, newToken);
             this.setLabelsUsingCurrentToken(prevToken, newToken);
             if (XPathLexer.isTokenTypeEqual(newToken, TokenLevelState.Operator)) {
                 if (newTokenValue === 'then' || newTokenValue === 'in' || newTokenValue === ':=' || newTokenValue === 'return' || newTokenValue === 'satisfies') {
-                    newToken.children = [];
+                    if (!this.flatten) {
+                        newToken.children = [];
+                    }
                     stack.push(newToken);
                 } else {
                     this.conditionallyPopStack(stack, newToken);

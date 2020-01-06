@@ -28,24 +28,29 @@ let xpath13 = `let $increment := function($x as xs:integer) as xs:integer* {
 // tests
 let xpath14 = `$a and 'a' and 23 and true() and function() and array[1] and $var and 5 + and and`;
 let xpath15 = `$a castable as xs:integer and union instance of element()`;
-let xpath16 = `map {25: 'first'}, for $a in 1 to 100 return concat($a, 'this''quoted'' thing')`
+let xpath16 = 
+`map {25: 'first'},
+	for $a in 1 to 100 return
+	  concat(
+		  $a, 'this''quoted'' thing'
+	  )`
 let xpath17 = 
 `map {\n\tabc: 2\n\tdef: 23\n\thij: 24\n}`;
-let largeXPath: string;
+
+let largeXPath: string = '';
 for (let i = 0; i < 5000; i++) {
-	largeXPath += (' ' + xpath16);
+	largeXPath += (', ' + xpath16);
 }
 
 // -------------
-let testXpath: string = xpath17;
+let testXpath: string = largeXPath;
 let testTitle = `declaration`;
-let generateTest = true;
-let timerOnly = false;
+let generateTest = false;
+let timerOnly = true;
 let flatten = true;
 // =============
 
 generateTest = timerOnly? false: generateTest;
-flatten = generateTest? false: flatten;
 let debugOn;
 if (timerOnly) {
 	debugOn = false;
