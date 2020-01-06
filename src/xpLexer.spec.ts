@@ -1,4 +1,5 @@
-import { XPathLexer, Token, TokenLevelState, Utilities } from './xpLexer'
+// tslint:disable
+import { XPathLexer, Token, TokenLevelState, Utilities } from './xpLexer';
 
 test('items in returned legend must equal count of TokenLevelState enum', () => {
   let expectedTokenTypeCount = Object.keys(TokenLevelState).length / 2;

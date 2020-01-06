@@ -1,3 +1,4 @@
+// tslint:disable
 import { XPathLexer, Token, TokenLevelState } from "./xpLexer";
 import { Debug } from "./diagnostics";
 
@@ -33,7 +34,7 @@ let xpath16 =
 	for $a in 1 to 100 return
 	  concat(
 		  $a, 'this''quoted'' thing'
-	  )`
+	  )`;
 let xpath17 = 
 `count($a)`;
 
@@ -43,10 +44,10 @@ for (let i = 0; i < 1300; i++) {
 }
 
 // -------------
-let testXpath: string = xpath17;
+let testXpath: string = largeXPath;
 let testTitle = `declaration`;
 let generateTest = true;
-let timerOnly = false;
+let timerOnly = true;
 let flatten = true;
 // =============
 
